@@ -294,6 +294,35 @@ body {
   font-weight: bold;
 }
 
+.film-strip-item .item-delete-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+}
+
+.film-strip-item:hover .item-delete-btn {
+  opacity: 1;
+}
+
+.film-strip-item .item-delete-btn:hover {
+  background: rgba(244, 67, 54, 1);
+  transform: scale(1.1);
+}
+
 .film-strip-placeholder {
   display: flex;
   align-items: center;
@@ -509,6 +538,13 @@ body {
   .film-strip-item .item-number {
     font-size: 0.6rem;
     padding: 1px 4px;
+  }
+
+  .film-strip-item .item-delete-btn {
+    width: 16px;
+    height: 16px;
+    font-size: 0.6rem;
+    opacity: 1; /* Always visible on mobile for easier touch interaction */
   }
 
   .film-strip-placeholder {

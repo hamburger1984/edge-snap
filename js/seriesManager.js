@@ -175,12 +175,28 @@ class SeriesManager {
       number.className = "item-number";
       number.textContent = index + 1;
 
+      // Create delete button
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "item-delete-btn";
+      deleteBtn.innerHTML = "✕";
+      deleteBtn.title = "Delete this photo";
+
       item.appendChild(img);
       item.appendChild(number);
+      item.appendChild(deleteBtn);
 
-      // Add click handler
-      item.addEventListener("click", () => {
-        this.selectPhoto(index);
+      // Add click handler for selecting photo
+      item.addEventListener("click", (e) => {
+        // Don't select if delete button was clicked
+        if (e.target !== deleteBtn) {
+          this.selectPhoto(index);
+        }
+      });
+
+      // Add click handler for delete button
+      deleteBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent selecting the photo
+        this.deletePhoto(index);
       });
 
       this.filmStrip.appendChild(item);
@@ -269,20 +285,20 @@ class SeriesManager {
     document.dispatchEvent(event);
   }
 
-  async deleteCurrentPhoto() {
-    if (!this.getCurrentPhoto()) {
+  async deletePhoto(index) {
+    if (index < 0 || index >= this.photos.length) {
       return;
     }
 
     const confirmDelete = confirm(
-      "Are you sure you want to delete this photo?",
+      `Are you sure you want to delete photo ${index + 1}?`,
     );
     if (!confirmDelete) {
       return;
     }
 
     try {
-      const photoToDelete = this.getCurrentPhoto();
+      const photoToDelete = this.photos[index];
       await this.db.deletePhoto(photoToDelete.id);
 
       // Reload photos
@@ -291,13 +307,25 @@ class SeriesManager {
       // Adjust current index if needed
       if (this.currentIndex >= this.photos.length) {
         this.currentIndex = Math.max(0, this.photos.length - 1);
+      } else if (index <= this.currentIndex && this.currentIndex > 0) {
+        // If we deleted a photo before or at the current index, adjust the current index
+        this.currentIndex = Math.max(0, this.currentIndex - 1);
       }
 
       this.updateUI();
+      this.notifyNavigationChange();
     } catch (error) {
       console.error("Error deleting photo:", error);
       alert("Failed to delete photo");
     }
+  }
+
+  async deleteCurrentPhoto() {
+    if (!this.getCurrentPhoto()) {
+      return;
+    }
+
+    await this.deletePhoto(this.currentIndex);
   }
 
   notifyPhotoAdded() {
