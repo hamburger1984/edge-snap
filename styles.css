@@ -48,6 +48,7 @@ body {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  flex-shrink: 0;
 }
 
 /* Main Camera View */
@@ -169,7 +170,17 @@ body {
 }
 
 /* Selects */
-.camera-select,
+.camera-select {
+  background: #333;
+  color: white;
+  border: 1px solid #555;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  max-width: 180px;
+  min-width: 120px;
+}
+
 .project-select {
   background: #333;
   color: white;
@@ -412,8 +423,10 @@ body {
   }
 
   .camera-select {
-    font-size: 0.8rem;
-    padding: 0.4rem;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+    max-width: 140px;
+    min-width: 100px;
   }
 
   /* Maximize camera container height */
