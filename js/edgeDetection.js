@@ -12,6 +12,8 @@ class EdgeDetection {
     document.addEventListener("cameraLayoutChanged", () => {
       // Add small delay to ensure camera layout has fully updated
       setTimeout(() => {
+        // Always update canvas size when layout changes
+        this.updateCanvasSize();
         if (this.edgeImageData) {
           this.drawEdges();
         }
@@ -148,12 +150,7 @@ class EdgeDetection {
     }
 
     // Set canvas size to match the camera container size
-    const container = video.parentElement;
-    const containerRect = container.getBoundingClientRect();
-    this.canvas.width = containerRect.width;
-    this.canvas.height = containerRect.height;
-    this.canvas.style.width = containerRect.width + "px";
-    this.canvas.style.height = containerRect.height + "px";
+    this.updateCanvasSize();
 
     if (referenceImageData) {
       // Process the reference image for edges
@@ -173,7 +170,32 @@ class EdgeDetection {
     }
   }
 
+  updateCanvasSize() {
+    const video = document.getElementById("cameraPreview");
+    const container = video.parentElement;
+
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+
+    // Only update if dimensions have changed or canvas is not sized
+    if (
+      this.canvas.width !== containerRect.width ||
+      this.canvas.height !== containerRect.height ||
+      this.canvas.width === 0 ||
+      this.canvas.height === 0
+    ) {
+      this.canvas.width = containerRect.width;
+      this.canvas.height = containerRect.height;
+      this.canvas.style.width = containerRect.width + "px";
+      this.canvas.style.height = containerRect.height + "px";
+    }
+  }
+
   drawEdges() {
+    // Update canvas size before drawing
+    this.updateCanvasSize();
+
     if (
       !this.edgeImageData ||
       !this.canvas ||
