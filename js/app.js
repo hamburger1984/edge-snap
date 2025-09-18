@@ -106,7 +106,12 @@ class EdgySnapperApp {
       // Debounce resize events
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(() => {
-        if (this.edgeDetection && this.edgeImageData) {
+        if (
+          this.edgeDetection &&
+          this.edgeDetection.edgeImageData &&
+          this.seriesManager &&
+          this.seriesManager.hasPhotos()
+        ) {
           this.updateEdgeOverlay();
         }
       }, 250);
@@ -192,11 +197,12 @@ class EdgySnapperApp {
         this.camera &&
         this.camera.isReady() &&
         this.edgeDetection &&
-        this.edgeDetection.isEnabled()
+        this.edgeDetection.isEnabled() &&
+        this.edgeDetection.edgeImageData
       ) {
-        // Only update if we have a reference image
-        const previousPhoto = this.seriesManager?.getPreviousPhoto();
-        if (previousPhoto) {
+        // Only redraw if we have edge data and canvas is ready
+        const canvas = document.getElementById("edgeOverlay");
+        if (canvas && canvas.width && canvas.height) {
           this.edgeDetection.drawEdges();
         }
       }

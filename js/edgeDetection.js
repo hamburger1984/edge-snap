@@ -171,8 +171,16 @@ class EdgeDetection {
   }
 
   drawEdges() {
-    if (!this.edgeImageData || !this.canvas) {
-      console.warn("EdgeDetection: Cannot draw edges - missing data or canvas");
+    if (
+      !this.edgeImageData ||
+      !this.canvas ||
+      !this.canvas.width ||
+      !this.canvas.height
+    ) {
+      // Don't log warning during normal initialization - only if edges are enabled and we should have data
+      if (this.edgesEnabled && this.edgeImageData) {
+        console.warn("EdgeDetection: Cannot draw edges - canvas not ready");
+      }
       return;
     }
 
