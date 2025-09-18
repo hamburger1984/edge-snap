@@ -6,7 +6,11 @@ class CameraManager {
     this.video = document.getElementById("cameraPreview");
     this.devices = [];
     this.availableResolutions = [
-      { width: 3840, height: 2160, label: "4K (3840×2160)" },
+      { width: 7680, height: 4320, label: "8K (7680×4320)" },
+      { width: 6144, height: 3456, label: "6K (6144×3456)" },
+      { width: 5120, height: 2880, label: "5K (5120×2880)" },
+      { width: 4096, height: 2304, label: "4K DCI (4096×2304)" },
+      { width: 3840, height: 2160, label: "4K UHD (3840×2160)" },
       { width: 2560, height: 1440, label: "QHD (2560×1440)" },
       { width: 1920, height: 1080, label: "Full HD (1920×1080)" },
       { width: 1280, height: 720, label: "HD (1280×720)" },
@@ -128,7 +132,11 @@ class CameraManager {
 
     // Test resolutions from highest to lowest to find the maximum supported
     const testResolutions = [
-      { width: 3840, height: 2160 }, // 4K
+      { width: 7680, height: 4320 }, // 8K
+      { width: 6144, height: 3456 }, // 6K
+      { width: 5120, height: 2880 }, // 5K
+      { width: 4096, height: 2304 }, // 4K DCI
+      { width: 3840, height: 2160 }, // 4K UHD
       { width: 2560, height: 1440 }, // QHD
       { width: 1920, height: 1080 }, // Full HD
       { width: 1280, height: 720 }, // HD
@@ -171,7 +179,11 @@ class CameraManager {
 
     // Define preferred resolutions (HD and above)
     const preferredResolutions = [
-      { width: 3840, height: 2160, label: "4K (3840×2160)" },
+      { width: 7680, height: 4320, label: "8K (7680×4320)" },
+      { width: 6144, height: 3456, label: "6K (6144×3456)" },
+      { width: 5120, height: 2880, label: "5K (5120×2880)" },
+      { width: 4096, height: 2304, label: "4K DCI (4096×2304)" },
+      { width: 3840, height: 2160, label: "4K UHD (3840×2160)" },
       { width: 2560, height: 1440, label: "QHD (2560×1440)" },
       { width: 1920, height: 1080, label: "Full HD (1920×1080)" },
       { width: 1280, height: 720, label: "HD (1280×720)" },
