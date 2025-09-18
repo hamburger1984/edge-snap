@@ -86,7 +86,6 @@ class EdgySnapperApp {
 
     // Listen for photos loaded to update edge overlay
     document.addEventListener("photosLoaded", (e) => {
-      console.log("App: Photos loaded event received", e.detail);
       this.updateEdgeOverlay();
     });
 
@@ -104,15 +103,11 @@ class EdgySnapperApp {
   }
 
   async capturePhoto() {
-    console.log("App: capturePhoto called");
-
     if (!this.camera || !this.camera.isReady()) {
       console.error("App: Camera not ready");
       this.showError("Camera not ready");
       return;
     }
-
-    console.log("App: Current project:", this.seriesManager.currentProject);
 
     if (!this.seriesManager.currentProject) {
       console.error("App: No project selected");
@@ -121,7 +116,6 @@ class EdgySnapperApp {
     }
 
     try {
-      console.log("App: Taking photo...");
       const photo = this.camera.capturePhoto();
       if (!photo) {
         console.error("App: Failed to capture photo");
@@ -129,9 +123,8 @@ class EdgySnapperApp {
         return;
       }
 
-      console.log("App: Photo captured, saving...", photo);
       await this.seriesManager.addPhoto(photo);
-      console.log("App: Photo saved successfully");
+
       this.showSuccess("Photo captured successfully!");
     } catch (error) {
       console.error("Error capturing photo:", error);
@@ -140,10 +133,7 @@ class EdgySnapperApp {
   }
 
   async updateEdgeOverlay() {
-    console.log("App: updateEdgeOverlay called");
-
     if (!this.edgeDetection || !this.seriesManager) {
-      console.log("App: Edge detection or series manager not ready");
       return;
     }
 
@@ -152,22 +142,13 @@ class EdgySnapperApp {
     const photos = this.seriesManager.getAllPhotos();
     const referencePhoto = photos.length > 0 ? photos[photos.length - 1] : null;
 
-    console.log(
-      "App: Reference photo for edge overlay:",
-      referencePhoto ? "found" : "none",
-      `(${photos.length} total photos)`,
-    );
-
     if (referencePhoto) {
-      console.log("App: Updating edge overlay with most recent photo");
       // Get camera mirroring state for proper edge alignment
       const isFrontCamera = this.camera
         ? this.camera.isFrontFacingCamera()
         : false;
-      console.log("App: Camera is front-facing:", isFrontCamera);
       this.edgeDetection.updateOverlay(referencePhoto.imageData, isFrontCamera);
     } else {
-      console.log("App: Clearing edge overlay (no photos)");
       this.edgeDetection.updateOverlay(null, false);
     }
   }

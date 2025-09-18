@@ -38,12 +38,6 @@ class EdgeDetection {
   }
 
   processImageForEdges(imageData, width, height) {
-    console.log("EdgeDetection: processImageForEdges called", {
-      isOpenCVReady: this.isOpenCVReady,
-      imageSize: `${width}x${height}`,
-      hasImageData: !!imageData,
-    });
-
     if (!this.isOpenCVReady) {
       console.warn("EdgeDetection: OpenCV not ready");
       return null;
@@ -119,17 +113,7 @@ class EdgeDetection {
   }
 
   updateOverlay(referenceImageData = null, isFrontCamera = false) {
-    console.log("EdgeDetection: updateOverlay called", {
-      hasReferenceData: !!referenceImageData,
-      isFrontCamera,
-      edgesEnabled: this.edgesEnabled,
-      hasCanvas: !!this.canvas,
-    });
-
     if (!this.edgesEnabled || !this.canvas) {
-      console.log(
-        "EdgeDetection: Clearing overlay - edges disabled or no canvas",
-      );
       this.clearOverlay();
       return;
     }
@@ -138,19 +122,11 @@ class EdgeDetection {
     this.isFrontCamera = isFrontCamera;
 
     const video = document.getElementById("cameraPreview");
-    console.log("EdgeDetection: Video dimensions check", {
-      videoWidth: video.videoWidth,
-      videoHeight: video.videoHeight,
-      hasVideo: !!video,
-    });
 
     if (!video.videoWidth || !video.videoHeight) {
-      console.log("EdgeDetection: Video not ready, waiting for video metadata");
-
       // Wait for video to be ready, then retry
       const waitForVideo = () => {
         if (video.videoWidth && video.videoHeight) {
-          console.log("EdgeDetection: Video now ready, retrying updateOverlay");
           this.updateOverlay(referenceImageData, isFrontCamera);
         } else {
           setTimeout(waitForVideo, 100);
@@ -170,21 +146,17 @@ class EdgeDetection {
     this.canvas.style.height = containerRect.height + "px";
 
     if (referenceImageData) {
-      console.log("EdgeDetection: Processing reference image for edges");
       // Process the reference image for edges
       this.processImageFromDataURL(referenceImageData).then((edges) => {
-        console.log("EdgeDetection: Edge processing result:", !!edges);
         if (edges) {
           this.edgeImageData = edges;
-          console.log("EdgeDetection: Calling drawEdges()");
           this.drawEdges();
         } else {
-          console.log("EdgeDetection: No edges detected, clearing overlay");
+          console.warn("EdgeDetection: No edges detected");
           this.clearOverlay();
         }
       });
     } else {
-      console.log("EdgeDetection: No reference image, clearing overlay");
       // Clear edges if no reference image
       this.edgeImageData = null;
       this.clearOverlay();
@@ -192,16 +164,8 @@ class EdgeDetection {
   }
 
   drawEdges() {
-    console.log("EdgeDetection: drawEdges called", {
-      hasEdgeImageData: !!this.edgeImageData,
-      hasCanvas: !!this.canvas,
-      canvasSize: this.canvas
-        ? `${this.canvas.width}x${this.canvas.height}`
-        : "none",
-    });
-
     if (!this.edgeImageData || !this.canvas) {
-      console.log("EdgeDetection: Cannot draw edges - missing data or canvas");
+      console.warn("EdgeDetection: Cannot draw edges - missing data or canvas");
       return;
     }
 
@@ -209,7 +173,6 @@ class EdgeDetection {
 
     // Clear the overlay
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    console.log("EdgeDetection: Canvas cleared, starting edge drawing");
 
     // Calculate the actual video display area within the video element
     const videoAspect = video.videoWidth / video.videoHeight;
