@@ -367,11 +367,11 @@ class CameraManager {
   }
 
   updateVideoMirroring() {
-    if (this.isFrontFacingCamera()) {
-      this.video.style.transform = "scaleX(-1)";
-    } else {
-      this.video.style.transform = "scaleX(1)";
-    }
+    // Get current orientation
+    const orientation = this.getDeviceOrientation();
+
+    // Apply mirroring and orientation together
+    this.applyOrientationTransform(orientation);
   }
 
   updateCameraLayout() {
@@ -381,6 +381,10 @@ class CameraManager {
 
     const container = this.video.parentElement;
     if (!container) return;
+
+    // Handle device orientation for mobile
+    const orientation = this.getDeviceOrientation();
+    this.applyOrientationTransform(orientation);
 
     const videoAspect = this.video.videoWidth / this.video.videoHeight;
     const maxWidth = window.innerWidth;
@@ -413,9 +417,72 @@ class CameraManager {
         width: targetWidth,
         height: targetHeight,
         aspect: videoAspect,
+        orientation: orientation,
       },
     });
     document.dispatchEvent(event);
+  }
+
+  getDeviceOrientation() {
+    // Detect device orientation
+    if (screen && screen.orientation) {
+      return screen.orientation.angle;
+    } else if (window.orientation !== undefined) {
+      return window.orientation;
+    }
+
+    // Fallback: detect based on window dimensions
+    const isLandscape = window.innerWidth > window.innerHeight;
+    return isLandscape ? 90 : 0;
+  }
+
+  applyOrientationTransform(orientation) {
+    // Determine if front camera should be mirrored
+    const shouldMirror = this.isFrontFacingCamera();
+
+    let transform = "";
+
+    // Apply mirroring if needed
+    if (shouldMirror) {
+      transform += "scaleX(-1) ";
+    }
+
+    // Apply rotation based on orientation
+    // The key insight: mobile browsers may report video in a different orientation
+    // than the actual device orientation, causing the 90° rotation issue
+    if (orientation === 90 || orientation === -270) {
+      // Landscape left - some devices need correction
+      if (this.needsOrientationCorrection()) {
+        transform += "rotate(-90deg) ";
+      }
+    } else if (orientation === -90 || orientation === 270) {
+      // Landscape right - some devices need correction
+      if (this.needsOrientationCorrection()) {
+        transform += "rotate(90deg) ";
+      }
+    } else if (orientation === 180) {
+      // Portrait upside down
+      transform += "rotate(180deg) ";
+    }
+    // Portrait normal needs no rotation
+
+    this.video.style.transform = transform.trim();
+  }
+
+  needsOrientationCorrection() {
+    // Check if we're on mobile and the video dimensions suggest it needs rotation
+    const isMobile =
+      /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      );
+    if (!isMobile) return false;
+
+    // If video width > height but we're in landscape, it might need correction
+    const isVideoLandscape = this.video.videoWidth > this.video.videoHeight;
+    const isViewportLandscape = window.innerWidth > window.innerHeight;
+
+    // If video and viewport orientations don't match, we might need correction
+    return isVideoLandscape !== isViewportLandscape;
   }
 
   destroy() {
