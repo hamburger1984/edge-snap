@@ -84,6 +84,12 @@ class EdgySnapperApp {
       this.updateEdgeOverlay();
     });
 
+    // Listen for photos loaded to update edge overlay
+    document.addEventListener("photosLoaded", (e) => {
+      console.log("App: Photos loaded event received", e.detail);
+      this.updateEdgeOverlay();
+    });
+
     // Update edge overlay periodically if camera is active
     this.startEdgeUpdateLoop();
 
@@ -134,16 +140,25 @@ class EdgySnapperApp {
   }
 
   async updateEdgeOverlay() {
+    console.log("App: updateEdgeOverlay called");
+
     if (!this.edgeDetection || !this.seriesManager) {
+      console.log("App: Edge detection or series manager not ready");
       return;
     }
 
     // Get the previous photo in the current series
     const previousPhoto = this.seriesManager.getPreviousPhoto();
+    console.log(
+      "App: Previous photo for edge overlay:",
+      previousPhoto ? "found" : "none",
+    );
 
     if (previousPhoto) {
+      console.log("App: Updating edge overlay with previous photo");
       this.edgeDetection.updateOverlay(previousPhoto.imageData);
     } else {
+      console.log("App: Clearing edge overlay (no previous photo)");
       this.edgeDetection.updateOverlay(null);
     }
   }

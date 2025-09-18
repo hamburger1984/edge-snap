@@ -65,10 +65,16 @@ class SeriesManager {
       this.photos = await this.db.getPhotosForProject(this.currentProject.id);
       this.currentIndex = Math.max(0, this.photos.length - 1); // Start with latest photo
       this.updateUI();
+
+      // Notify that photos have been loaded
+      this.notifyPhotosLoaded();
     } catch (error) {
       console.error("Error loading photos:", error);
       this.photos = [];
       this.updateUI();
+
+      // Still notify even if no photos
+      this.notifyPhotosLoaded();
     }
   }
 
@@ -235,5 +241,18 @@ class SeriesManager {
 
   hasPhotos() {
     return this.photos.length > 0;
+  }
+
+  notifyPhotosLoaded() {
+    // Dispatch custom event when photos are loaded
+    const event = new CustomEvent("photosLoaded", {
+      detail: {
+        photos: this.photos,
+        project: this.currentProject,
+        currentPhoto: this.getCurrentPhoto(),
+        previousPhoto: this.getPreviousPhoto(),
+      },
+    });
+    document.dispatchEvent(event);
   }
 }
