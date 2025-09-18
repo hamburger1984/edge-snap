@@ -1,7 +1,7 @@
 class Database {
   constructor() {
     this.db = null;
-    this.dbName = "EdgySnapperDB";
+    this.dbName = "EdgeSnapDB";
     this.version = 1;
   }
 

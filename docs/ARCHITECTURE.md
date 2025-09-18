@@ -1,8 +1,8 @@
-# EdgySnapper Architecture
+# EdgeSnap Architecture
 
 ## Overview
 
-EdgySnapper is a Progressive Web Application (PWA) built with vanilla JavaScript that provides camera-based photography with edge detection overlay for precise photo alignment.
+EdgeSnap is a Progressive Web Application (PWA) built with vanilla JavaScript that provides camera-based photography with edge detection overlay for precise photo alignment.
 
 ## Core Components
 

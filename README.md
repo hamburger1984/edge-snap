@@ -1,4 +1,4 @@
-# EdgySnapper 📷
+# EdgeSnap 📷
 
 A Progressive Web App for camera photography with real-time edge detection overlay, designed for precise photo alignment and creative photography. Perfect for stop-motion animation, time-lapse sequences, and professional photo series.
 
@@ -53,7 +53,7 @@ A Progressive Web App for camera photography with real-time edge detection overl
 ## 🚀 Getting Started
 
 ### Quick Start
-1. **Open App**: Navigate to EdgySnapper in your browser
+1. **Open App**: Navigate to EdgeSnap in your browser
 2. **Grant Permissions**: Allow camera access when prompted
 3. **Select Camera**: Choose your preferred camera device
 4. **Pick Resolution**: Select optimal resolution for your needs
@@ -126,7 +126,7 @@ A Progressive Web App for camera photography with real-time edge detection overl
 
 **Desktop:**
 1. Look for install icon in browser address bar
-2. Click "Install EdgySnapper"
+2. Click "Install EdgeSnap"
 3. Launch from desktop/applications folder
 
 ### Local Development
@@ -201,7 +201,7 @@ For detailed technical information, see:
 
 ## 🤝 Contributing
 
-EdgySnapper is feature-complete but welcomes improvements:
+EdgeSnap is feature-complete but welcomes improvements:
 
 1. **Test Thoroughly**: Verify changes across browsers and devices
 2. **Follow Standards**: Maintain code quality and documentation

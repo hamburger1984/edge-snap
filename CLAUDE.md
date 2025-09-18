@@ -1,4 +1,4 @@
-# Claude Development Guidelines for EdgySnapper
+# Claude Development Guidelines for EdgeSnap
 
 ## Code Quality Standards
 

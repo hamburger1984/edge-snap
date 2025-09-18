@@ -1,10 +1,10 @@
-# EdgySnapper User Guide
+# EdgeSnap User Guide
 
 ## Getting Started
 
 ### First Time Setup
 
-1. **Open EdgySnapper** in your web browser
+1. **Open EdgeSnap** in your web browser
 2. **Grant Camera Permission** when prompted by your browser
 3. **Choose Your Camera** from the dropdown (if multiple cameras available)
 4. **Select Resolution** appropriate for your project needs
@@ -192,4 +192,4 @@
 
 ---
 
-**Happy creating with EdgySnapper!** 📷✨
+**Happy creating with EdgeSnap!** 📷✨

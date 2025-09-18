@@ -1,4 +1,4 @@
-class EdgySnapperApp {
+class EdgeSnapApp {
   constructor() {
     this.database = null;
     this.camera = null;
@@ -13,7 +13,7 @@ class EdgySnapperApp {
   async init() {
     try {
       // Show loading state
-      this.showLoading("Initializing EdgySnapper...");
+      this.showLoading("Initializing EdgeSnap...");
 
       // Initialize database
       this.database = new Database();
@@ -44,7 +44,7 @@ class EdgySnapperApp {
       this.isInitialized = true;
 
       this.hideLoading();
-      this.showSuccess("EdgySnapper initialized successfully!");
+      this.showSuccess("EdgeSnap initialized successfully!");
     } catch (error) {
       console.error("Error initializing app:", error);
       this.hideLoading();
@@ -351,6 +351,6 @@ class EdgySnapperApp {
 
 // Initialize app when DOM is loaded
 document.addEventListener("DOMContentLoaded", async () => {
-  window.edgySnapper = new EdgySnapperApp();
-  await window.edgySnapper.init();
+  window.edgeSnap = new EdgeSnapApp();
+  await window.edgeSnap.init();
 });

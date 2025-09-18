@@ -1,6 +1,6 @@
 {
-  "name": "EdgySnapper - Camera Edge Detection",
-  "short_name": "EdgySnapper",
+  "name": "EdgeSnap - Camera Edge Detection",
+  "short_name": "EdgeSnap",
   "description": "Professional camera app with edge detection overlay for precise photography",
   "start_url": "/",
   "display": "standalone",
@@ -19,9 +19,7 @@
       "type": "image/png"
     }
   ],
-  "permissions": [
-    "camera"
-  ],
+  "permissions": ["camera"],
   "categories": ["photography", "utilities"],
   "screenshots": []
 }
