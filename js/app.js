@@ -68,11 +68,16 @@ class EdgySnapperApp {
       toggleEdgesBtn.classList.toggle("btn-primary", enabled);
     });
 
-    // Capture photo
+    // Capture photo - handle both desktop and mobile buttons
     const captureBtn = document.getElementById("captureBtn");
-    captureBtn.addEventListener("click", () => {
+    const floatingCaptureBtn = document.getElementById("floatingCaptureBtn");
+
+    const handleCapture = () => {
       this.capturePhoto();
-    });
+    };
+
+    captureBtn.addEventListener("click", handleCapture);
+    floatingCaptureBtn.addEventListener("click", handleCapture);
 
     // Listen for photo additions to update edge overlay
     document.addEventListener("photoAdded", (e) => {

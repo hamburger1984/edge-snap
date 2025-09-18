@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>EdgySnapper - Camera Edge Detection</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.json" />
@@ -40,6 +43,10 @@
           <video id="cameraPreview" autoplay playsinline muted></video>
           <canvas id="edgeOverlay" class="edge-overlay"></canvas>
           <canvas id="captureCanvas" style="display: none"></canvas>
+          <!-- Floating capture button for mobile -->
+          <button id="floatingCaptureBtn" class="floating-capture-btn">
+            📷
+          </button>
         </div>
 
         <div class="controls">
