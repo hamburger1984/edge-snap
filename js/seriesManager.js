@@ -30,6 +30,7 @@ class SeriesManager {
 
     // Listen for project changes
     document.addEventListener("projectChanged", (e) => {
+      console.log("SeriesManager: Project changed event received:", e.detail);
       this.setCurrentProject(e.detail);
     });
 
@@ -44,6 +45,7 @@ class SeriesManager {
   }
 
   async setCurrentProject(project) {
+    console.log("SeriesManager: Setting current project:", project);
     this.currentProject = project;
     if (project) {
       await this.loadPhotos();
@@ -51,6 +53,7 @@ class SeriesManager {
       this.photos = [];
       this.updateUI();
     }
+    console.log("SeriesManager: Current project is now:", this.currentProject);
   }
 
   async loadPhotos() {

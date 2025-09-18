@@ -27,12 +27,12 @@ class EdgySnapperApp {
       this.edgeDetection = new EdgeDetection();
       await this.edgeDetection.init();
 
-      // Initialize project manager
+      // Initialize series manager first (needs to listen for project events)
+      this.seriesManager = new SeriesManager(this.database);
+
+      // Initialize project manager (will dispatch project change events)
       this.projectManager = new ProjectManager(this.database);
       await this.projectManager.init();
-
-      // Initialize series manager
-      this.seriesManager = new SeriesManager(this.database);
 
       // Initialize movie player
       this.moviePlayer = new MoviePlayer();

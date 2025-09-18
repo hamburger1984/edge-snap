@@ -50,17 +50,35 @@ class ProjectManager {
   }
 
   async init() {
+    console.log("ProjectManager: Initializing...");
     await this.loadProjects();
+    console.log("ProjectManager: Loaded", this.projects.length, "projects");
 
     // Create default project if none exist
     if (this.projects.length === 0) {
       try {
-        await this.createProject("Default Project");
+        console.log("ProjectManager: No projects found, creating default...");
+        const projectId = await this.createProject("Default Project");
+        console.log(
+          "ProjectManager: Created default project with ID:",
+          projectId,
+        );
+        // Reload projects to get the new one
+        await this.loadProjects();
+        console.log(
+          "ProjectManager: After reload, have",
+          this.projects.length,
+          "projects",
+        );
       } catch (error) {
         console.error("Failed to create default project:", error);
       }
     } else {
       // Select the most recent project
+      console.log(
+        "ProjectManager: Selecting most recent project:",
+        this.projects[0],
+      );
       this.selectProject(this.projects[0].id);
     }
   }
@@ -204,9 +222,11 @@ class ProjectManager {
   }
 
   notifyProjectChange(project) {
+    console.log("ProjectManager: notifyProjectChange called with:", project);
     // Dispatch custom event for other components to listen to
     const event = new CustomEvent("projectChanged", { detail: project });
     document.dispatchEvent(event);
+    console.log("ProjectManager: projectChanged event dispatched");
   }
 
   showSuccess(message) {
