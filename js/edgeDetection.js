@@ -7,6 +7,13 @@ class EdgeDetection {
     this.lastProcessedImage = null;
     this.edgeImageData = null;
     this.isFrontCamera = false;
+
+    // Listen for camera layout changes to update edge overlay
+    document.addEventListener("cameraLayoutChanged", () => {
+      if (this.edgeImageData) {
+        this.drawEdges();
+      }
+    });
   }
 
   async init() {

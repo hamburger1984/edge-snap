@@ -232,6 +232,16 @@ class CameraManager {
     console.log(
       `Camera layout updated: ${targetWidth}x${targetHeight} (aspect: ${videoAspect.toFixed(2)})`,
     );
+
+    // Dispatch event to notify edge detection that layout has changed
+    const event = new CustomEvent("cameraLayoutChanged", {
+      detail: {
+        width: targetWidth,
+        height: targetHeight,
+        aspect: videoAspect,
+      },
+    });
+    document.dispatchEvent(event);
   }
 
   destroy() {

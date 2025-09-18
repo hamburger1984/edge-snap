@@ -178,6 +178,10 @@ class ProjectManager {
         // Only hide modal if created from UI
         this.hideNewProjectModal();
       }
+
+      // Clear edge overlay for new project (it has no photos)
+      this.clearEdgeOverlay();
+
       this.showSuccess(`Project "${projectName}" created successfully`);
       return projectId;
     } catch (error) {
@@ -185,6 +189,12 @@ class ProjectManager {
       alert("Failed to create project");
       throw error;
     }
+  }
+
+  clearEdgeOverlay() {
+    // Dispatch event to clear edge overlay
+    const event = new CustomEvent("clearEdgeOverlay");
+    document.dispatchEvent(event);
   }
 
   async deleteCurrentProject() {

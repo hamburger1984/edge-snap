@@ -58,6 +58,10 @@ class SeriesManager {
 
   async loadPhotos() {
     if (!this.currentProject) {
+      this.photos = [];
+      this.currentIndex = 0;
+      this.updateUI();
+      this.notifyPhotosLoaded();
       return;
     }
 
@@ -68,9 +72,14 @@ class SeriesManager {
 
       // Notify that photos have been loaded
       this.notifyPhotosLoaded();
+
+      console.log(
+        `SeriesManager: Loaded ${this.photos.length} photos for project ${this.currentProject.name}`,
+      );
     } catch (error) {
       console.error("Error loading photos:", error);
       this.photos = [];
+      this.currentIndex = 0;
       this.updateUI();
 
       // Still notify even if no photos
@@ -94,8 +103,15 @@ class SeriesManager {
       // Reload photos and go to the newest one
       await this.loadPhotos();
 
+      // Ensure we're viewing the newest photo
+      this.currentIndex = Math.max(0, this.photos.length - 1);
+      this.updateUI();
+
       // Notify that a new photo was added
       this.notifyPhotoAdded();
+
+      // Also notify navigation change to update edge overlay
+      this.notifyNavigationChange();
     } catch (error) {
       console.error("Error saving photo:", error);
       throw error;
@@ -108,6 +124,7 @@ class SeriesManager {
     this.currentIndex =
       (this.currentIndex - 1 + this.photos.length) % this.photos.length;
     this.updateUI();
+    this.notifyNavigationChange();
   }
 
   navigateToNext() {
@@ -115,6 +132,18 @@ class SeriesManager {
 
     this.currentIndex = (this.currentIndex + 1) % this.photos.length;
     this.updateUI();
+    this.notifyNavigationChange();
+  }
+
+  notifyNavigationChange() {
+    // Dispatch event when navigation changes to update edge overlay
+    const event = new CustomEvent("seriesNavigationChanged", {
+      detail: {
+        currentPhoto: this.getCurrentPhoto(),
+        project: this.currentProject,
+      },
+    });
+    document.dispatchEvent(event);
   }
 
   updateUI() {

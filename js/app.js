@@ -89,6 +89,29 @@ class EdgySnapperApp {
       this.updateEdgeOverlay();
     });
 
+    // Listen for edge overlay clear requests
+    document.addEventListener("clearEdgeOverlay", (e) => {
+      if (this.edgeDetection) {
+        this.edgeDetection.clearOverlay();
+      }
+    });
+
+    // Listen for series navigation changes to update edge overlay
+    document.addEventListener("seriesNavigationChanged", (e) => {
+      this.updateEdgeOverlayForPhoto(e.detail.currentPhoto);
+    });
+
+    // Listen for window resize to update edge overlay
+    window.addEventListener("resize", () => {
+      // Debounce resize events
+      clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = setTimeout(() => {
+        if (this.edgeDetection && this.edgeImageData) {
+          this.updateEdgeOverlay();
+        }
+      }, 250);
+    });
+
     // Update edge overlay periodically if camera is active
     this.startEdgeUpdateLoop();
 
@@ -137,17 +160,26 @@ class EdgySnapperApp {
       return;
     }
 
-    // For edge overlay, use the most recent photo if available
-    // This shows edges from the last photo taken to help align the next shot
+    // Use the currently selected photo if available, otherwise use the most recent
+    const currentPhoto = this.seriesManager.getCurrentPhoto();
     const photos = this.seriesManager.getAllPhotos();
-    const referencePhoto = photos.length > 0 ? photos[photos.length - 1] : null;
+    const referencePhoto =
+      currentPhoto || (photos.length > 0 ? photos[photos.length - 1] : null);
 
-    if (referencePhoto) {
+    this.updateEdgeOverlayForPhoto(referencePhoto);
+  }
+
+  updateEdgeOverlayForPhoto(photo) {
+    if (!this.edgeDetection) {
+      return;
+    }
+
+    if (photo) {
       // Get camera mirroring state for proper edge alignment
       const isFrontCamera = this.camera
         ? this.camera.isFrontFacingCamera()
         : false;
-      this.edgeDetection.updateOverlay(referencePhoto.imageData, isFrontCamera);
+      this.edgeDetection.updateOverlay(photo.imageData, isFrontCamera);
     } else {
       this.edgeDetection.updateOverlay(null, false);
     }

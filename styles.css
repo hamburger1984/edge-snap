@@ -27,6 +27,18 @@ body {
   border-bottom: 1px solid #333;
 }
 
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-logo {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
 .header h1 {
   font-size: 1.5rem;
   color: #2196f3;
