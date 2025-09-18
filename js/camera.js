@@ -116,25 +116,10 @@ class CameraManager {
     canvas.width = this.video.videoWidth;
     canvas.height = this.video.videoHeight;
 
-    // Check if we need to mirror the image (for front-facing cameras)
+    // Capture the image in its true orientation (not mirrored)
+    // The preview may be mirrored for UI purposes, but captured photos should be true orientation
     const isFrontCamera = this.isFrontFacingCamera();
-
-    if (isFrontCamera) {
-      // Mirror horizontally for front camera
-      context.save();
-      context.scale(-1, 1);
-      context.drawImage(
-        this.video,
-        -canvas.width,
-        0,
-        canvas.width,
-        canvas.height,
-      );
-      context.restore();
-    } else {
-      // Draw normally for rear camera
-      context.drawImage(this.video, 0, 0, canvas.width, canvas.height);
-    }
+    context.drawImage(this.video, 0, 0, canvas.width, canvas.height);
 
     // Convert to data URL
     const imageData = canvas.toDataURL("image/jpeg", 0.9);

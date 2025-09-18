@@ -201,8 +201,8 @@ class EdgeDetection {
 
     // Handle mirroring for front cameras
     if (this.isFrontCamera) {
-      // Since both preview and captured image are mirrored for front cameras,
-      // we need to mirror the edge overlay to align with the mirrored preview
+      // Preview is mirrored but captured images are not mirrored
+      // So we need to mirror the edge overlay to align with the mirrored preview
       this.ctx.translate(drawX + drawWidth, drawY);
       this.ctx.scale(-1, 1);
       this.ctx.drawImage(
