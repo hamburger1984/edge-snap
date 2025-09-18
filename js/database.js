@@ -108,7 +108,7 @@ class Database {
         const photoData = {
           projectId: photo.projectId,
           imageData: photo.imageData,
-          timestamp: new Date(),
+          timestamp: photo.timestamp || new Date(),
           order: maxOrder + 1,
           width: photo.width,
           height: photo.height,

@@ -13,6 +13,45 @@ class SeriesManager {
     this.setupEventListeners();
   }
 
+  formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInMs = now - date;
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    // If taken today, show time
+    if (diffInDays === 0) {
+      if (diffInMinutes < 1) {
+        return "Just now";
+      } else if (diffInMinutes < 60) {
+        return `${diffInMinutes}m ago`;
+      } else {
+        return date.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+    }
+    // If taken this week, show day and time
+    else if (diffInDays < 7) {
+      if (diffInDays === 1) {
+        return `Yesterday ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+      } else {
+        return date.toLocaleDateString([], {
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+    }
+    // Otherwise show date
+    else {
+      return date.toLocaleDateString([], { month: "short", day: "numeric" });
+    }
+  }
+
   setupEventListeners() {
     this.playMovieBtn.addEventListener("click", () => {
       this.playMovie();
@@ -79,6 +118,7 @@ class SeriesManager {
       const photoId = await this.db.savePhoto({
         projectId: this.currentProject.id,
         imageData: photo.imageData,
+        timestamp: photo.timestamp,
         width: photo.width,
         height: photo.height,
       });
@@ -175,6 +215,12 @@ class SeriesManager {
       number.className = "item-number";
       number.textContent = index + 1;
 
+      // Create timestamp display
+      const timestamp = document.createElement("div");
+      timestamp.className = "item-timestamp";
+      timestamp.textContent = this.formatTimestamp(photo.timestamp);
+      timestamp.title = new Date(photo.timestamp).toLocaleString();
+
       // Create delete button
       const deleteBtn = document.createElement("button");
       deleteBtn.className = "item-delete-btn";
@@ -183,6 +229,7 @@ class SeriesManager {
 
       item.appendChild(img);
       item.appendChild(number);
+      item.appendChild(timestamp);
       item.appendChild(deleteBtn);
 
       // Add click handler for selecting photo

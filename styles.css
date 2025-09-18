@@ -294,6 +294,21 @@ body {
   font-weight: bold;
 }
 
+.film-strip-item .item-timestamp {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  max-width: calc(100% - 8px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .film-strip-item .item-delete-btn {
   position: absolute;
   top: 4px;
@@ -538,6 +553,14 @@ body {
   .film-strip-item .item-number {
     font-size: 0.6rem;
     padding: 1px 4px;
+  }
+
+  .film-strip-item .item-timestamp {
+    font-size: 0.5rem;
+    padding: 1px 3px;
+    max-width: calc(
+      100% - 22px
+    ); /* Account for smaller mobile frames and delete button */
   }
 
   .film-strip-item .item-delete-btn {
