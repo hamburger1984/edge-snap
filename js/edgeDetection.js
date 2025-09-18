@@ -6,6 +6,7 @@ class EdgeDetection {
     this.ctx = this.canvas.getContext("2d");
     this.lastProcessedImage = null;
     this.edgeImageData = null;
+    this.isFrontCamera = false;
   }
 
   async init() {
@@ -111,11 +112,14 @@ class EdgeDetection {
     });
   }
 
-  updateOverlay(referenceImageData = null) {
+  updateOverlay(referenceImageData = null, isFrontCamera = false) {
     if (!this.edgesEnabled || !this.canvas) {
       this.clearOverlay();
       return;
     }
+
+    // Store camera state for use in drawEdges
+    this.isFrontCamera = isFrontCamera;
 
     const video = document.getElementById("cameraPreview");
     if (!video.videoWidth || !video.videoHeight) {
@@ -195,17 +199,37 @@ class EdgeDetection {
     this.ctx.globalAlpha = 0.7;
     this.ctx.globalCompositeOperation = "screen"; // Better blending for edges
 
-    this.ctx.drawImage(
-      tempCanvas,
-      0,
-      0,
-      tempCanvas.width,
-      tempCanvas.height,
-      drawX,
-      drawY,
-      drawWidth,
-      drawHeight,
-    );
+    // Handle mirroring for front cameras
+    if (this.isFrontCamera) {
+      // Since both preview and captured image are mirrored for front cameras,
+      // we need to mirror the edge overlay to align with the mirrored preview
+      this.ctx.translate(drawX + drawWidth, drawY);
+      this.ctx.scale(-1, 1);
+      this.ctx.drawImage(
+        tempCanvas,
+        0,
+        0,
+        tempCanvas.width,
+        tempCanvas.height,
+        0,
+        0,
+        drawWidth,
+        drawHeight,
+      );
+    } else {
+      // Normal drawing for rear cameras
+      this.ctx.drawImage(
+        tempCanvas,
+        0,
+        0,
+        tempCanvas.width,
+        tempCanvas.height,
+        drawX,
+        drawY,
+        drawWidth,
+        drawHeight,
+      );
+    }
 
     this.ctx.restore();
   }

@@ -147,19 +147,28 @@ class EdgySnapperApp {
       return;
     }
 
-    // Get the previous photo in the current series
-    const previousPhoto = this.seriesManager.getPreviousPhoto();
+    // For edge overlay, use the most recent photo if available
+    // This shows edges from the last photo taken to help align the next shot
+    const photos = this.seriesManager.getAllPhotos();
+    const referencePhoto = photos.length > 0 ? photos[photos.length - 1] : null;
+
     console.log(
-      "App: Previous photo for edge overlay:",
-      previousPhoto ? "found" : "none",
+      "App: Reference photo for edge overlay:",
+      referencePhoto ? "found" : "none",
+      `(${photos.length} total photos)`,
     );
 
-    if (previousPhoto) {
-      console.log("App: Updating edge overlay with previous photo");
-      this.edgeDetection.updateOverlay(previousPhoto.imageData);
+    if (referencePhoto) {
+      console.log("App: Updating edge overlay with most recent photo");
+      // Get camera mirroring state for proper edge alignment
+      const isFrontCamera = this.camera
+        ? this.camera.isFrontFacingCamera()
+        : false;
+      console.log("App: Camera is front-facing:", isFrontCamera);
+      this.edgeDetection.updateOverlay(referencePhoto.imageData, isFrontCamera);
     } else {
-      console.log("App: Clearing edge overlay (no previous photo)");
-      this.edgeDetection.updateOverlay(null);
+      console.log("App: Clearing edge overlay (no photos)");
+      this.edgeDetection.updateOverlay(null, false);
     }
   }
 
