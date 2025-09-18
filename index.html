@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EdgySnapper - Camera Edge Detection</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="theme-color" content="#2196F3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="EdgySnapper">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>EdgySnapper</h1>
+            <div class="header-controls">
+                <select id="cameraSelect" class="camera-select">
+                    <option value="">Select Camera</option>
+                </select>
+                <button id="toggleEdges" class="btn btn-secondary">Toggle Edges</button>
+            </div>
+        </header>
+
+        <!-- Main Camera View -->
+        <main class="main-view">
+            <div class="camera-container">
+                <video id="cameraPreview" autoplay playsinline muted></video>
+                <canvas id="edgeOverlay" class="edge-overlay"></canvas>
+                <canvas id="captureCanvas" style="display: none;"></canvas>
+            </div>
+
+            <div class="controls">
+                <button id="captureBtn" class="btn btn-primary capture-btn">📷 Capture</button>
+            </div>
+        </main>
+
+        <!-- Project Management -->
+        <section class="project-section">
+            <div class="project-header">
+                <h2>Projects</h2>
+                <button id="newProjectBtn" class="btn btn-secondary">+ New Project</button>
+            </div>
+            <div class="project-controls">
+                <select id="projectSelect" class="project-select">
+                    <option value="">Select Project</option>
+                </select>
+                <button id="deleteProjectBtn" class="btn btn-danger">Delete</button>
+            </div>
+        </section>
+
+        <!-- Series Navigation -->
+        <section class="series-section">
+            <div class="series-header">
+                <h3>Current Series</h3>
+                <div class="series-controls">
+                    <button id="playMovieBtn" class="btn btn-secondary">▶️ Play Movie</button>
+                    <span id="seriesCounter">0 / 0</span>
+                </div>
+            </div>
+            <div class="series-navigation">
+                <button id="prevBtn" class="btn btn-nav">◀️</button>
+                <div class="series-preview">
+                    <img id="seriesImage" src="" alt="Series preview">
+                </div>
+                <button id="nextBtn" class="btn btn-nav">▶️</button>
+            </div>
+        </section>
+
+        <!-- Movie Player Modal -->
+        <div id="movieModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Movie Playback</h3>
+                    <button id="closeMovieBtn" class="btn btn-close">✕</button>
+                </div>
+                <canvas id="movieCanvas"></canvas>
+                <div class="movie-controls">
+                    <button id="playPauseBtn" class="btn btn-primary">▶️ Play</button>
+                    <input type="range" id="speedSlider" min="1" max="10" value="5" class="speed-slider">
+                    <span>Speed: <span id="speedValue">5</span>fps</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Project Modal -->
+        <div id="newProjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>New Project</h3>
+                    <button id="closeNewProjectBtn" class="btn btn-close">✕</button>
+                </div>
+                <input type="text" id="projectNameInput" placeholder="Project name" class="project-input">
+                <div class="modal-actions">
+                    <button id="createProjectBtn" class="btn btn-primary">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://docs.opencv.org/4.9.0/opencv.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/edgeDetection.js"></script>
+    <script src="js/projectManager.js"></script>
+    <script src="js/seriesManager.js"></script>
+    <script src="js/moviePlayer.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>

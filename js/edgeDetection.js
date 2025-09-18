@@ -1,0 +1,235 @@
+class EdgeDetection {
+  constructor() {
+    this.isOpenCVReady = false;
+    this.edgesEnabled = true;
+    this.canvas = document.getElementById("edgeOverlay");
+    this.ctx = this.canvas.getContext("2d");
+    this.lastProcessedImage = null;
+    this.edgeImageData = null;
+  }
+
+  async init() {
+    return new Promise((resolve) => {
+      if (typeof cv !== "undefined" && cv.Mat) {
+        this.isOpenCVReady = true;
+        resolve();
+        return;
+      }
+
+      // Wait for OpenCV to load
+      const checkOpenCV = setInterval(() => {
+        if (typeof cv !== "undefined" && cv.Mat) {
+          this.isOpenCVReady = true;
+          clearInterval(checkOpenCV);
+          resolve();
+        }
+      }, 100);
+
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        if (!this.isOpenCVReady) {
+          clearInterval(checkOpenCV);
+          console.error("OpenCV failed to load");
+          resolve(); // Resolve anyway to continue without edge detection
+        }
+      }, 10000);
+    });
+  }
+
+  processImageForEdges(imageData, width, height) {
+    if (!this.isOpenCVReady) {
+      console.warn("OpenCV not ready");
+      return null;
+    }
+
+    try {
+      // Create OpenCV mat from image data
+      const src = cv.matFromImageData({
+        data: new Uint8ClampedArray(imageData),
+        width: width,
+        height: height,
+      });
+
+      // Convert to grayscale
+      const gray = new cv.Mat();
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+
+      // Apply Gaussian blur to reduce noise
+      const blurred = new cv.Mat();
+      cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+
+      // Apply Canny edge detection
+      const edges = new cv.Mat();
+      cv.Canny(blurred, edges, 50, 150);
+
+      // Convert back to RGBA for display
+      const edgesRGBA = new cv.Mat();
+      cv.cvtColor(edges, edgesRGBA, cv.COLOR_GRAY2RGBA);
+
+      // Get image data
+      const edgeImageData = new ImageData(
+        new Uint8ClampedArray(edgesRGBA.data),
+        edgesRGBA.cols,
+        edgesRGBA.rows,
+      );
+
+      // Cleanup
+      src.delete();
+      gray.delete();
+      blurred.delete();
+      edges.delete();
+      edgesRGBA.delete();
+
+      return edgeImageData;
+    } catch (error) {
+      console.error("Error processing edges:", error);
+      return null;
+    }
+  }
+
+  async processImageFromDataURL(dataURL) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const tempCanvas = document.createElement("canvas");
+        const tempCtx = tempCanvas.getContext("2d");
+
+        tempCanvas.width = img.width;
+        tempCanvas.height = img.height;
+        tempCtx.drawImage(img, 0, 0);
+
+        const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
+        const edges = this.processImageForEdges(
+          imageData.data,
+          img.width,
+          img.height,
+        );
+
+        resolve(edges);
+      };
+      img.src = dataURL;
+    });
+  }
+
+  updateOverlay(referenceImageData = null) {
+    if (!this.edgesEnabled || !this.canvas) {
+      this.clearOverlay();
+      return;
+    }
+
+    const video = document.getElementById("cameraPreview");
+    if (!video.videoWidth || !video.videoHeight) {
+      return;
+    }
+
+    // Set canvas size to match the video display size, not video dimensions
+    const rect = video.getBoundingClientRect();
+    this.canvas.width = rect.width;
+    this.canvas.height = rect.height;
+    this.canvas.style.width = rect.width + "px";
+    this.canvas.style.height = rect.height + "px";
+
+    if (referenceImageData) {
+      // Process the reference image for edges
+      this.processImageFromDataURL(referenceImageData).then((edges) => {
+        if (edges) {
+          this.edgeImageData = edges;
+          this.drawEdges();
+        }
+      });
+    } else {
+      // Clear edges if no reference image
+      this.edgeImageData = null;
+      this.clearOverlay();
+    }
+  }
+
+  drawEdges() {
+    if (!this.edgeImageData || !this.canvas) {
+      return;
+    }
+
+    const video = document.getElementById("cameraPreview");
+
+    // Clear the overlay
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Calculate the actual video display area within the video element
+    const videoAspect = video.videoWidth / video.videoHeight;
+    const displayAspect = this.canvas.width / this.canvas.height;
+
+    let drawWidth, drawHeight, drawX, drawY;
+
+    if (videoAspect > displayAspect) {
+      // Video is wider - fit to width, letterbox top/bottom
+      drawWidth = this.canvas.width;
+      drawHeight = this.canvas.width / videoAspect;
+      drawX = 0;
+      drawY = (this.canvas.height - drawHeight) / 2;
+    } else {
+      // Video is taller - fit to height, pillarbox left/right
+      drawHeight = this.canvas.height;
+      drawWidth = this.canvas.height * videoAspect;
+      drawX = (this.canvas.width - drawWidth) / 2;
+      drawY = 0;
+    }
+
+    // Draw capture area indicator (semi-transparent rectangle)
+    this.ctx.strokeStyle = "#2196F3";
+    this.ctx.lineWidth = 2;
+    this.ctx.setLineDash([5, 5]);
+    this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
+    this.ctx.setLineDash([]);
+
+    // Create a temporary canvas to draw the edges
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCanvas.width = this.edgeImageData.width;
+    tempCanvas.height = this.edgeImageData.height;
+
+    tempCtx.putImageData(this.edgeImageData, 0, 0);
+
+    // Draw edges within the capture area, maintaining aspect ratio
+    this.ctx.save();
+    this.ctx.globalAlpha = 0.7;
+    this.ctx.globalCompositeOperation = "screen"; // Better blending for edges
+
+    this.ctx.drawImage(
+      tempCanvas,
+      0,
+      0,
+      tempCanvas.width,
+      tempCanvas.height,
+      drawX,
+      drawY,
+      drawWidth,
+      drawHeight,
+    );
+
+    this.ctx.restore();
+  }
+
+  clearOverlay() {
+    if (this.canvas && this.ctx) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+  }
+
+  toggleEdges() {
+    this.edgesEnabled = !this.edgesEnabled;
+    if (!this.edgesEnabled) {
+      this.clearOverlay();
+    } else if (this.edgeImageData) {
+      this.drawEdges();
+    }
+    return this.edgesEnabled;
+  }
+
+  isEnabled() {
+    return this.edgesEnabled;
+  }
+
+  isReady() {
+    return this.isOpenCVReady;
+  }
+}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EdgySnapper Debug</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #000; color: #0f0; }
+        .log { margin: 5px 0; }
+        .error { color: #f00; }
+        .success { color: #0f0; }
+        .info { color: #ff0; }
+    </style>
+</head>
+<body>
+    <h1>EdgySnapper Debug Console</h1>
+    <div id="log"></div>
+
+    <script src="js/database.js"></script>
+    <script>
+        const log = document.getElementById('log');
+
+        function addLog(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = new Date().toISOString() + ': ' + message;
+            log.appendChild(div);
+            console.log(message);
+        }
+
+        async function testDatabase() {
+            try {
+                addLog('Starting database test...', 'info');
+
+                const db = new Database();
+                await db.init();
+                addLog('Database initialized successfully', 'success');
+
+                // Test project creation
+                const projectId = await db.saveProject({name: 'Test Project'});
+                addLog('Project created with ID: ' + projectId, 'success');
+
+                // Test project retrieval
+                const projects = await db.getAllProjects();
+                addLog('Found ' + projects.length + ' projects', 'success');
+                addLog('Projects: ' + JSON.stringify(projects), 'info');
+
+                // Test photo creation
+                const photoId = await db.savePhoto({
+                    projectId: projectId,
+                    imageData: 'data:image/jpeg;base64,test',
+                    width: 100,
+                    height: 100
+                });
+                addLog('Photo created with ID: ' + photoId, 'success');
+
+                // Test photo retrieval
+                const photos = await db.getPhotosForProject(projectId);
+                addLog('Found ' + photos.length + ' photos for project', 'success');
+
+                addLog('All database tests passed!', 'success');
+
+            } catch (error) {
+                addLog('Database test failed: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        // Run test
+        testDatabase();
+    </script>
+</body>
+</html>
