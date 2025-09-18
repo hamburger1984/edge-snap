@@ -193,8 +193,8 @@ class SeriesManager {
       this.filmStrip.appendChild(item);
     });
 
-    // Scroll to selected item
-    this.scrollToSelectedItem();
+    // Scroll to selected item with slight delay to ensure DOM update
+    setTimeout(() => this.scrollToSelectedItem(), 10);
   }
 
   selectPhoto(index) {
@@ -215,16 +215,25 @@ class SeriesManager {
       const containerRect = container.getBoundingClientRect();
       const itemRect = selectedItem.getBoundingClientRect();
 
-      // Calculate scroll position to center the item in the container
-      const scrollLeft =
-        this.filmStrip.scrollLeft +
-        (itemRect.left - containerRect.left) -
-        containerRect.width / 2 +
-        itemRect.width / 2;
+      // Calculate the item's position relative to the film strip
+      const itemOffsetLeft = selectedItem.offsetLeft;
+      const itemWidth = selectedItem.offsetWidth;
+      const containerWidth = container.clientWidth;
 
-      // Smooth scroll within the film strip container only
-      this.filmStrip.parentElement.scrollTo({
-        left: scrollLeft,
+      // Calculate scroll position to center the item in the container
+      const targetScrollLeft =
+        itemOffsetLeft - containerWidth / 2 + itemWidth / 2;
+
+      // Ensure we don't scroll past the boundaries
+      const maxScrollLeft = this.filmStrip.scrollWidth - containerWidth;
+      const finalScrollLeft = Math.max(
+        0,
+        Math.min(targetScrollLeft, maxScrollLeft),
+      );
+
+      // Smooth scroll the container horizontally
+      container.scrollTo({
+        left: finalScrollLeft,
         behavior: "smooth",
       });
     }

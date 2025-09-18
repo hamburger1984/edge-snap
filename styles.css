@@ -237,9 +237,11 @@ body {
 .film-strip-container {
   width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   padding: 0.5rem 0;
   background: #1a1a1a;
   border-radius: 8px;
+  scroll-behavior: smooth;
 }
 
 .film-strip {
@@ -384,7 +386,9 @@ body {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 768px),
+  (max-height: 600px) and (orientation: landscape) and (pointer: coarse),
+  (max-width: 1024px) and (orientation: landscape) and (hover: none) {
   /* Mobile layout optimizations for maximum camera preview space */
 
   /* Support for safe areas on notched devices */
