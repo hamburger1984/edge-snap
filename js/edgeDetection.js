@@ -10,9 +10,12 @@ class EdgeDetection {
 
     // Listen for camera layout changes to update edge overlay
     document.addEventListener("cameraLayoutChanged", () => {
-      if (this.edgeImageData) {
-        this.drawEdges();
-      }
+      // Add small delay to ensure camera layout has fully updated
+      setTimeout(() => {
+        if (this.edgeImageData) {
+          this.drawEdges();
+        }
+      }, 150);
     });
   }
 

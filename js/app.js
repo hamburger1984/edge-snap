@@ -106,8 +106,8 @@ class EdgySnapperApp {
       this.updateEdgeOverlayForPhoto(e.detail.currentPhoto);
     });
 
-    // Listen for window resize to update edge overlay
-    window.addEventListener("resize", () => {
+    // Listen for window resize and orientation changes to update edge overlay
+    const handleLayoutChange = () => {
       // Debounce resize events
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(() => {
@@ -119,8 +119,16 @@ class EdgySnapperApp {
         ) {
           this.updateEdgeOverlay();
         }
-      }, 250);
-    });
+      }, 300);
+    };
+
+    window.addEventListener("resize", handleLayoutChange);
+    window.addEventListener("orientationchange", handleLayoutChange);
+
+    // Also handle visual viewport changes on mobile
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleLayoutChange);
+    }
 
     // Update edge overlay periodically if camera is active
     this.startEdgeUpdateLoop();

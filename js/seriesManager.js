@@ -209,11 +209,23 @@ class SeriesManager {
     const selectedItem = this.filmStrip.querySelector(
       ".film-strip-item.selected",
     );
-    if (selectedItem) {
-      selectedItem.scrollIntoView({
+    if (selectedItem && this.filmStrip.parentElement) {
+      // Scroll within the film strip container only, not the entire page
+      const container = this.filmStrip.parentElement;
+      const containerRect = container.getBoundingClientRect();
+      const itemRect = selectedItem.getBoundingClientRect();
+
+      // Calculate scroll position to center the item in the container
+      const scrollLeft =
+        this.filmStrip.scrollLeft +
+        (itemRect.left - containerRect.left) -
+        containerRect.width / 2 +
+        itemRect.width / 2;
+
+      // Smooth scroll within the film strip container only
+      this.filmStrip.parentElement.scrollTo({
+        left: scrollLeft,
         behavior: "smooth",
-        block: "nearest",
-        inline: "center",
       });
     }
   }

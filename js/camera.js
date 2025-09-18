@@ -5,12 +5,23 @@ class CameraManager {
     this.video = document.getElementById("cameraPreview");
     this.devices = [];
 
-    // Handle window resize
-    window.addEventListener("resize", () => {
-      if (this.video.videoWidth && this.video.videoHeight) {
-        this.updateCameraLayout();
-      }
-    });
+    // Handle window resize and orientation changes
+    const handleLayoutChange = () => {
+      // Small delay to ensure layout has settled
+      setTimeout(() => {
+        if (this.video.videoWidth && this.video.videoHeight) {
+          this.updateCameraLayout();
+        }
+      }, 100);
+    };
+
+    window.addEventListener("resize", handleLayoutChange);
+    window.addEventListener("orientationchange", handleLayoutChange);
+
+    // Also listen for visual viewport changes on mobile
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleLayoutChange);
+    }
   }
 
   async init() {
