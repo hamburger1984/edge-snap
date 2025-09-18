@@ -2,8 +2,17 @@ class CameraManager {
   constructor() {
     this.stream = null;
     this.currentDeviceId = null;
+    this.currentResolution = null;
     this.video = document.getElementById("cameraPreview");
     this.devices = [];
+    this.availableResolutions = [
+      { width: 3840, height: 2160, label: "4K (3840×2160)" },
+      { width: 2560, height: 1440, label: "QHD (2560×1440)" },
+      { width: 1920, height: 1080, label: "Full HD (1920×1080)" },
+      { width: 1280, height: 720, label: "HD (1280×720)" },
+      { width: 854, height: 480, label: "480p (854×480)" },
+      { width: 640, height: 480, label: "VGA (640×480)" },
+    ];
 
     // Handle window resize and orientation changes
     const handleLayoutChange = () => {
@@ -35,6 +44,8 @@ class CameraManager {
       // Start with the first available camera
       if (this.devices.length > 0) {
         await this.startCamera(this.devices[0].deviceId);
+        // Update resolution list after camera starts
+        await this.updateResolutionList();
       }
     } catch (error) {
       console.error("Error initializing camera:", error);
@@ -66,18 +77,21 @@ class CameraManager {
     }
   }
 
-  async startCamera(deviceId) {
+  async startCamera(deviceId, resolution = null) {
     try {
       // Stop existing stream
       if (this.stream) {
         this.stream.getTracks().forEach((track) => track.stop());
       }
 
+      // Use provided resolution or default to QHD
+      const targetResolution = resolution || { width: 2560, height: 1440 };
+
       const constraints = {
         video: {
           deviceId: deviceId ? { exact: deviceId } : undefined,
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
+          width: { ideal: targetResolution.width },
+          height: { ideal: targetResolution.height },
           facingMode: deviceId ? undefined : "environment",
         },
       };
@@ -85,6 +99,7 @@ class CameraManager {
       this.stream = await navigator.mediaDevices.getUserMedia(constraints);
       this.video.srcObject = this.stream;
       this.currentDeviceId = deviceId;
+      this.currentResolution = targetResolution;
 
       // Wait for video metadata to load, then set up proper sizing
       this.video.addEventListener("loadedmetadata", () => {
@@ -108,9 +123,149 @@ class CameraManager {
     }
   }
 
-  switchCamera(deviceId) {
+  async getMaxSupportedResolution() {
+    if (!this.currentDeviceId) return null;
+
+    // Test resolutions from highest to lowest to find the maximum supported
+    const testResolutions = [
+      { width: 3840, height: 2160 }, // 4K
+      { width: 2560, height: 1440 }, // QHD
+      { width: 1920, height: 1080 }, // Full HD
+      { width: 1280, height: 720 }, // HD
+      { width: 854, height: 480 }, // 480p
+      { width: 640, height: 480 }, // VGA
+    ];
+
+    for (const resolution of testResolutions) {
+      try {
+        const testConstraints = {
+          video: {
+            deviceId: { exact: this.currentDeviceId },
+            width: { exact: resolution.width },
+            height: { exact: resolution.height },
+          },
+        };
+
+        const testStream =
+          await navigator.mediaDevices.getUserMedia(testConstraints);
+        testStream.getTracks().forEach((track) => track.stop());
+
+        // This resolution works, return it as the max
+        return resolution;
+      } catch (error) {
+        // Try next lower resolution
+        continue;
+      }
+    }
+
+    // If no resolution works, return null
+    return null;
+  }
+
+  async updateResolutionList() {
+    const select = document.getElementById("resolutionSelect");
+    select.innerHTML = '<option value="">Select Resolution</option>';
+
+    // Test what's the maximum resolution this camera supports
+    const maxSupportedResolution = await this.getMaxSupportedResolution();
+
+    // Define preferred resolutions (HD and above)
+    const preferredResolutions = [
+      { width: 3840, height: 2160, label: "4K (3840×2160)" },
+      { width: 2560, height: 1440, label: "QHD (2560×1440)" },
+      { width: 1920, height: 1080, label: "Full HD (1920×1080)" },
+      { width: 1280, height: 720, label: "HD (1280×720)" },
+    ];
+
+    // Fallback resolutions for cameras with max resolution below HD
+    const fallbackResolutions = [
+      { width: 854, height: 480, label: "480p (854×480)" },
+      { width: 640, height: 480, label: "VGA (640×480)" },
+    ];
+
+    let availableResolutions;
+
+    // If max supported resolution is below HD, include fallback resolutions
+    if (
+      maxSupportedResolution &&
+      (maxSupportedResolution.width < 1280 ||
+        maxSupportedResolution.height < 720)
+    ) {
+      // Filter fallback resolutions that are at or below the max supported
+      const supportedFallbacks = fallbackResolutions.filter(
+        (res) =>
+          res.width <= maxSupportedResolution.width &&
+          res.height <= maxSupportedResolution.height,
+      );
+      availableResolutions = [...preferredResolutions, ...supportedFallbacks];
+    } else {
+      // Only show HD and above
+      availableResolutions = preferredResolutions;
+    }
+
+    // Filter out resolutions higher than max supported
+    if (maxSupportedResolution) {
+      availableResolutions = availableResolutions.filter(
+        (res) =>
+          res.width <= maxSupportedResolution.width &&
+          res.height <= maxSupportedResolution.height,
+      );
+    }
+
+    // Populate the select with available resolutions
+    availableResolutions.forEach((resolution) => {
+      const option = document.createElement("option");
+      option.value = `${resolution.width}x${resolution.height}`;
+      option.textContent = resolution.label;
+      select.appendChild(option);
+    });
+
+    // Set default selection - prefer QHD, then Full HD, then highest available
+    let defaultRes =
+      availableResolutions.find((r) => r.width === 2560 && r.height === 1440) ||
+      availableResolutions.find((r) => r.width === 1920 && r.height === 1080) ||
+      availableResolutions[0];
+
+    if (defaultRes) {
+      select.value = `${defaultRes.width}x${defaultRes.height}`;
+
+      // If we're not already using this resolution, switch to it
+      if (
+        !this.currentResolution ||
+        this.currentResolution.width !== defaultRes.width ||
+        this.currentResolution.height !== defaultRes.height
+      ) {
+        await this.startCamera(this.currentDeviceId, defaultRes);
+      }
+    }
+  }
+
+  async switchResolution(resolutionString) {
+    if (!resolutionString || !this.currentDeviceId) return;
+
+    const [width, height] = resolutionString.split("x").map(Number);
+    const resolution = { width, height };
+
+    try {
+      await this.startCamera(this.currentDeviceId, resolution);
+    } catch (error) {
+      console.error("Failed to switch to resolution:", resolution, error);
+      this.showError(
+        `Resolution ${width}×${height} not supported by this camera`,
+      );
+
+      // Revert to previous selection
+      const resolutionSelect = document.getElementById("resolutionSelect");
+      if (this.currentResolution) {
+        resolutionSelect.value = `${this.currentResolution.width}x${this.currentResolution.height}`;
+      }
+    }
+  }
+
+  async switchCamera(deviceId) {
     if (deviceId && deviceId !== this.currentDeviceId) {
-      this.startCamera(deviceId);
+      await this.startCamera(deviceId);
+      await this.updateResolutionList();
     }
   }
 

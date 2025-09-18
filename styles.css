@@ -170,7 +170,8 @@ body {
 }
 
 /* Selects */
-.camera-select {
+.camera-select,
+.resolution-select {
   background: #333;
   color: white;
   border: 1px solid #555;
@@ -426,7 +427,8 @@ body {
     font-size: 0.8rem;
   }
 
-  .camera-select {
+  .camera-select,
+  .resolution-select {
     font-size: 0.75rem;
     padding: 0.3rem 0.5rem;
     max-width: 140px;

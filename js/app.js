@@ -59,6 +59,12 @@ class EdgySnapperApp {
       this.camera.switchCamera(e.target.value);
     });
 
+    // Resolution selection
+    const resolutionSelect = document.getElementById("resolutionSelect");
+    resolutionSelect.addEventListener("change", (e) => {
+      this.camera.switchResolution(e.target.value);
+    });
+
     // Toggle edges
     const toggleEdgesBtn = document.getElementById("toggleEdges");
     toggleEdgesBtn.addEventListener("click", () => {
