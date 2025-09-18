@@ -244,6 +244,11 @@ class SeriesManager {
   }
 
   notifyPhotosLoaded() {
+    console.log(
+      "SeriesManager: notifyPhotosLoaded called with",
+      this.photos.length,
+      "photos",
+    );
     // Dispatch custom event when photos are loaded
     const event = new CustomEvent("photosLoaded", {
       detail: {
