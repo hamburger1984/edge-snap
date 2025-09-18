@@ -6,24 +6,14 @@ class SeriesManager {
     this.currentIndex = 0;
 
     // UI elements
-    this.seriesImage = document.getElementById("seriesImage");
+    this.filmStrip = document.getElementById("filmStrip");
     this.seriesCounter = document.getElementById("seriesCounter");
-    this.prevBtn = document.getElementById("prevBtn");
-    this.nextBtn = document.getElementById("nextBtn");
     this.playMovieBtn = document.getElementById("playMovieBtn");
 
     this.setupEventListeners();
   }
 
   setupEventListeners() {
-    this.prevBtn.addEventListener("click", () => {
-      this.navigateToPrevious();
-    });
-
-    this.nextBtn.addEventListener("click", () => {
-      this.navigateToNext();
-    });
-
     this.playMovieBtn.addEventListener("click", () => {
       this.playMovie();
     });
@@ -121,18 +111,16 @@ class SeriesManager {
   navigateToPrevious() {
     if (this.photos.length === 0) return;
 
-    this.currentIndex =
+    const newIndex =
       (this.currentIndex - 1 + this.photos.length) % this.photos.length;
-    this.updateUI();
-    this.notifyNavigationChange();
+    this.selectPhoto(newIndex);
   }
 
   navigateToNext() {
     if (this.photos.length === 0) return;
 
-    this.currentIndex = (this.currentIndex + 1) % this.photos.length;
-    this.updateUI();
-    this.notifyNavigationChange();
+    const newIndex = (this.currentIndex + 1) % this.photos.length;
+    this.selectPhoto(newIndex);
   }
 
   notifyNavigationChange() {
@@ -156,32 +144,77 @@ class SeriesManager {
       this.seriesCounter.textContent = "0 / 0";
     }
 
-    // Update navigation buttons
-    this.prevBtn.disabled = !hasPhotos;
-    this.nextBtn.disabled = !hasPhotos;
+    // Update play movie button
     this.playMovieBtn.disabled = this.photos.length < 2;
 
-    // Update image preview
-    if (hasPhotos && this.photos[this.currentIndex]) {
-      this.seriesImage.src = this.photos[this.currentIndex].imageData;
-      this.seriesImage.style.display = "block";
-    } else {
-      this.seriesImage.src = "";
-      this.seriesImage.style.display = "none";
+    // Update film strip
+    this.updateFilmStrip();
+  }
+
+  updateFilmStrip() {
+    if (!this.filmStrip) return;
+
+    // Clear existing content
+    this.filmStrip.innerHTML = "";
+
+    if (this.photos.length === 0) {
+      // Show placeholder
+      const placeholder = document.createElement("div");
+      placeholder.className = "film-strip-placeholder";
+      placeholder.innerHTML = "<span>No photos in series</span>";
+      this.filmStrip.appendChild(placeholder);
+      return;
     }
 
-    // Update series preview container
-    const previewContainer = this.seriesImage.parentElement;
-    if (previewContainer) {
-      if (!hasPhotos) {
-        previewContainer.style.background = "#333";
-        previewContainer.innerHTML =
-          '<div style="color: #999; font-size: 0.9rem;">No photos in series</div>';
-      } else {
-        previewContainer.style.background = "";
-        previewContainer.innerHTML = "";
-        previewContainer.appendChild(this.seriesImage);
+    // Create film strip items
+    this.photos.forEach((photo, index) => {
+      const item = document.createElement("div");
+      item.className = "film-strip-item";
+      if (index === this.currentIndex) {
+        item.classList.add("selected");
       }
+
+      const img = document.createElement("img");
+      img.src = photo.imageData;
+      img.alt = `Photo ${index + 1}`;
+
+      const number = document.createElement("div");
+      number.className = "item-number";
+      number.textContent = index + 1;
+
+      item.appendChild(img);
+      item.appendChild(number);
+
+      // Add click handler
+      item.addEventListener("click", () => {
+        this.selectPhoto(index);
+      });
+
+      this.filmStrip.appendChild(item);
+    });
+
+    // Scroll to selected item
+    this.scrollToSelectedItem();
+  }
+
+  selectPhoto(index) {
+    if (index >= 0 && index < this.photos.length) {
+      this.currentIndex = index;
+      this.updateUI();
+      this.notifyNavigationChange();
+    }
+  }
+
+  scrollToSelectedItem() {
+    const selectedItem = this.filmStrip.querySelector(
+      ".film-strip-item.selected",
+    );
+    if (selectedItem) {
+      selectedItem.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
     }
   }
 
