@@ -59,8 +59,8 @@ body {
 .camera-container {
   position: relative;
   width: 100vw;
-  min-height: 300px;
-  max-height: 70vh;
+  min-height: 400px;
+  max-height: 80vh;
   background: #000;
   display: flex;
   align-items: center;
@@ -435,8 +435,8 @@ body {
 
   /* Maximize camera container height */
   .camera-container {
-    min-height: 50vh;
-    max-height: 85vh;
+    min-height: 60vh;
+    max-height: 90vh;
   }
 
   /* Adjust floating button position for safe areas */

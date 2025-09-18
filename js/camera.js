@@ -217,7 +217,7 @@ class CameraManager {
 
     const videoAspect = this.video.videoWidth / this.video.videoHeight;
     const maxWidth = window.innerWidth;
-    const maxHeight = window.innerHeight * 0.7; // 70vh max
+    const maxHeight = window.innerHeight * 0.8; // 80vh max
 
     let targetWidth, targetHeight;
 
@@ -239,10 +239,6 @@ class CameraManager {
     // Center the container horizontally
     container.style.marginLeft = "auto";
     container.style.marginRight = "auto";
-
-    console.log(
-      `Camera layout updated: ${targetWidth}x${targetHeight} (aspect: ${videoAspect.toFixed(2)})`,
-    );
 
     // Dispatch event to notify edge detection that layout has changed
     const event = new CustomEvent("cameraLayoutChanged", {

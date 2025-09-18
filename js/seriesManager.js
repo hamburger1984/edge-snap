@@ -20,7 +20,6 @@ class SeriesManager {
 
     // Listen for project changes
     document.addEventListener("projectChanged", (e) => {
-      console.log("SeriesManager: Project changed event received:", e.detail);
       this.setCurrentProject(e.detail);
     });
 
@@ -35,7 +34,6 @@ class SeriesManager {
   }
 
   async setCurrentProject(project) {
-    console.log("SeriesManager: Setting current project:", project);
     this.currentProject = project;
     if (project) {
       await this.loadPhotos();
@@ -43,7 +41,6 @@ class SeriesManager {
       this.photos = [];
       this.updateUI();
     }
-    console.log("SeriesManager: Current project is now:", this.currentProject);
   }
 
   async loadPhotos() {
@@ -62,10 +59,6 @@ class SeriesManager {
 
       // Notify that photos have been loaded
       this.notifyPhotosLoaded();
-
-      console.log(
-        `SeriesManager: Loaded ${this.photos.length} photos for project ${this.currentProject.name}`,
-      );
     } catch (error) {
       console.error("Error loading photos:", error);
       this.photos = [];
@@ -327,11 +320,6 @@ class SeriesManager {
   }
 
   notifyPhotosLoaded() {
-    console.log(
-      "SeriesManager: notifyPhotosLoaded called with",
-      this.photos.length,
-      "photos",
-    );
     // Dispatch custom event when photos are loaded
     const event = new CustomEvent("photosLoaded", {
       detail: {
