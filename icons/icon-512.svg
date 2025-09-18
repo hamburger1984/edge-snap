@@ -1,14 +1,33 @@
 <svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" fill="#2196F3" rx="64"/>
-  <rect x="96" y="192" width="320" height="214" fill="white" rx="20"/>
-  <rect x="122" y="218" width="268" height="162" fill="#333" rx="10"/>
-  <circle cx="256" cy="299" r="54" fill="#2196F3"/>
-  <circle cx="256" cy="299" r="32" fill="white"/>
-  <rect x="204" y="138" width="104" height="54" fill="white" rx="27"/>
-  <text x="256" y="460" text-anchor="middle" fill="white" font-family="Arial" font-size="38" font-weight="bold">EDGYSNAPPER</text>
-  
+  <rect width="512" height="512" fill="#2196F3" rx="64" />
+  <rect x="96" y="192" width="320" height="214" fill="white" rx="20" />
+  <rect x="122" y="218" width="268" height="162" fill="#333" rx="10" />
+  <circle cx="256" cy="299" r="54" fill="#2196F3" />
+  <circle cx="256" cy="299" r="32" fill="white" />
+  <rect x="204" y="138" width="104" height="54" fill="white" rx="27" />
+  <text
+    x="256"
+    y="460"
+    text-anchor="middle"
+    fill="white"
+    font-family="Arial"
+    font-size="38"
+    font-weight="bold"
+  >EDGESNAP</text>
+
   <!-- Edge lines for visual effect -->
-  <path d="M 150 250 L 200 280 L 180 320 L 220 350" stroke="white" stroke-width="2" fill="none" opacity="0.3"/>
-  <path d="M 350 260 L 320 290 L 340 330 L 300 360" stroke="white" stroke-width="2" fill="none" opacity="0.3"/>
+  <path
+    d="M 150 250 L 200 280 L 180 320 L 220 350"
+    stroke="white"
+    stroke-width="2"
+    fill="none"
+    opacity="0.3"
+  />
+  <path
+    d="M 350 260 L 320 290 L 340 330 L 300 360"
+    stroke="white"
+    stroke-width="2"
+    fill="none"
+    opacity="0.3"
+  />
 </svg>
-EOF </dev/null
