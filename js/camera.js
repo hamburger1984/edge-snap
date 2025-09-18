@@ -4,6 +4,13 @@ class CameraManager {
     this.currentDeviceId = null;
     this.video = document.getElementById("cameraPreview");
     this.devices = [];
+
+    // Handle window resize
+    window.addEventListener("resize", () => {
+      if (this.video.videoWidth && this.video.videoHeight) {
+        this.updateCameraLayout();
+      }
+    });
   }
 
   async init() {
@@ -67,6 +74,14 @@ class CameraManager {
       this.stream = await navigator.mediaDevices.getUserMedia(constraints);
       this.video.srcObject = this.stream;
       this.currentDeviceId = deviceId;
+
+      // Wait for video metadata to load, then set up proper sizing
+      this.video.addEventListener("loadedmetadata", () => {
+        // Small delay to ensure video dimensions are stable
+        setTimeout(() => {
+          this.updateCameraLayout();
+        }, 100);
+      });
 
       // Apply mirroring to video preview for front-facing cameras
       this.updateVideoMirroring();
@@ -194,6 +209,44 @@ class CameraManager {
     } else {
       this.video.style.transform = "scaleX(1)";
     }
+  }
+
+  updateCameraLayout() {
+    if (!this.video.videoWidth || !this.video.videoHeight) {
+      return;
+    }
+
+    const container = this.video.parentElement;
+    if (!container) return;
+
+    const videoAspect = this.video.videoWidth / this.video.videoHeight;
+    const maxWidth = window.innerWidth;
+    const maxHeight = window.innerHeight * 0.7; // 70vh max
+
+    let targetWidth, targetHeight;
+
+    // Calculate optimal size maintaining aspect ratio
+    if (videoAspect > maxWidth / maxHeight) {
+      // Video is wider - fit to width
+      targetWidth = maxWidth;
+      targetHeight = maxWidth / videoAspect;
+    } else {
+      // Video is taller - fit to height
+      targetHeight = maxHeight;
+      targetWidth = maxHeight * videoAspect;
+    }
+
+    // Set container dimensions
+    container.style.width = targetWidth + "px";
+    container.style.height = targetHeight + "px";
+
+    // Center the container horizontally
+    container.style.marginLeft = "auto";
+    container.style.marginRight = "auto";
+
+    console.log(
+      `Camera layout updated: ${targetWidth}x${targetHeight} (aspect: ${videoAspect.toFixed(2)})`,
+    );
   }
 
   destroy() {

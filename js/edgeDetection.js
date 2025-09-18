@@ -122,12 +122,13 @@ class EdgeDetection {
       return;
     }
 
-    // Set canvas size to match the video display size, not video dimensions
-    const rect = video.getBoundingClientRect();
-    this.canvas.width = rect.width;
-    this.canvas.height = rect.height;
-    this.canvas.style.width = rect.width + "px";
-    this.canvas.style.height = rect.height + "px";
+    // Set canvas size to match the camera container size
+    const container = video.parentElement;
+    const containerRect = container.getBoundingClientRect();
+    this.canvas.width = containerRect.width;
+    this.canvas.height = containerRect.height;
+    this.canvas.style.width = containerRect.width + "px";
+    this.canvas.style.height = containerRect.height + "px";
 
     if (referenceImageData) {
       // Process the reference image for edges
