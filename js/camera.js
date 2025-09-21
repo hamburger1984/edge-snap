@@ -28,6 +28,16 @@ class CameraManager {
     }
   }
 
+  isPortraitMode() {
+    // Check if device is in portrait mode
+    return window.innerHeight > window.innerWidth;
+  }
+
+  getTargetAspectRatio() {
+    // Return 16:10 for landscape, 10:16 for portrait
+    return this.isPortraitMode() ? 0.625 : 1.6;
+  }
+
   async init() {
     try {
       // Request camera permission
@@ -215,6 +225,7 @@ class CameraManager {
       const constraints = {
         video: {
           deviceId: deviceId ? { exact: deviceId } : undefined,
+          aspectRatio: { ideal: this.getTargetAspectRatio() },
           ...(targetResolution && {
             width: { ideal: targetResolution.width },
             height: { ideal: targetResolution.height },
@@ -482,8 +493,6 @@ class CameraManager {
     // Detect device orientation
     if (screen && screen.orientation) {
       return screen.orientation.angle;
-    } else if (window.orientation !== undefined) {
-      return window.orientation;
     }
 
     // Fallback: detect based on window dimensions
