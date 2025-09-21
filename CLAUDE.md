@@ -27,11 +27,22 @@ Types: fix, feat, refactor, style, docs, test
 
 ## Technical Guidelines
 
+### Camera Selection System
+- **Automatic Detection**: Cameras are automatically categorized as front or back based on device labels
+- **Quality Scoring**: Best camera is selected using quality indicators (4K, HD, main, etc.)
+- **Smart Defaults**: Starts with back camera (preferred for document scanning) with fallback to front
+- **Optimal Resolution**: Each camera automatically uses its best supported resolution (QHD > Full HD > highest available)
+- **Toggle Interface**: Floating button group allows quick switching between front/back cameras
+- **No Manual Selection**: Eliminates user confusion with dropdown menus
+
 ### Camera & Preview
 - Always match canvas dimensions to video dimensions
 - Handle aspect ratio differences between preview and capture
 - Account for potential mirroring in front-facing cameras
 - Provide visual indicators for actual capture area
+- Automatic camera selection chooses best available front/back cameras
+- Simple toggle interface for switching between front and back cameras
+- Automatic resolution optimization for each camera
 
 ### Edge Detection
 - Ensure edge overlay matches the exact capture area

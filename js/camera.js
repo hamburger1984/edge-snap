@@ -5,6 +5,9 @@ class CameraManager {
     this.currentResolution = null;
     this.video = document.getElementById("cameraPreview");
     this.devices = [];
+    this.bestFrontCamera = null;
+    this.bestBackCamera = null;
+    this.currentCameraType = "back"; // 'front' or 'back'
     this.availableResolutions = [
       { width: 7680, height: 4320, label: "8K (7680×4320)" },
       { width: 6144, height: 3456, label: "6K (6144×3456)" },
@@ -42,15 +45,21 @@ class CameraManager {
       // Request camera permission
       await navigator.mediaDevices.getUserMedia({ video: true });
 
-      // Get available devices
+      // Get available devices and select best cameras
       await this.updateDeviceList();
+      this.selectBestCameras();
 
-      // Start with the first available camera
-      if (this.devices.length > 0) {
-        await this.startCamera(this.devices[0].deviceId);
-        // Update resolution list after camera starts
-        await this.updateResolutionList();
+      // Start with the best back camera (preferred) or front camera as fallback
+      const startDeviceId =
+        this.bestBackCamera?.deviceId || this.bestFrontCamera?.deviceId;
+      if (startDeviceId) {
+        this.currentCameraType = this.bestBackCamera ? "back" : "front";
+        await this.startCamera(startDeviceId);
+        await this.updateResolutionForCurrentCamera();
       }
+
+      // Create camera toggle UI
+      this.createCameraToggleUI();
     } catch (error) {
       console.error("Error initializing camera:", error);
       this.showError("Camera access denied or not available");
@@ -61,24 +70,115 @@ class CameraManager {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       this.devices = devices.filter((device) => device.kind === "videoinput");
-
-      const select = document.getElementById("cameraSelect");
-      select.innerHTML = '<option value="">Select Camera</option>';
-
-      this.devices.forEach((device, index) => {
-        const option = document.createElement("option");
-        option.value = device.deviceId;
-        option.textContent = device.label || `Camera ${index + 1}`;
-        select.appendChild(option);
-      });
-
-      // Set the current device as selected
-      if (this.currentDeviceId) {
-        select.value = this.currentDeviceId;
-      }
     } catch (error) {
       console.error("Error getting camera devices:", error);
     }
+  }
+
+  selectBestCameras() {
+    // Categorize cameras as front or back based on labels and facing mode
+    const frontCameras = [];
+    const backCameras = [];
+
+    this.devices.forEach((device) => {
+      const label = device.label.toLowerCase();
+
+      // Determine if it's a front camera based on label
+      const isFront =
+        label.includes("front") ||
+        label.includes("user") ||
+        label.includes("selfie") ||
+        label.includes("facetime") ||
+        (!label.includes("back") &&
+          !label.includes("rear") &&
+          !label.includes("environment") &&
+          !label.includes("main") &&
+          this.devices.length > 1); // If multiple cameras and no clear indicator, assume second+ is front
+
+      if (isFront) {
+        frontCameras.push(device);
+      } else {
+        backCameras.push(device);
+      }
+    });
+
+    // Select best cameras - prefer those with higher quality indicators in name
+    this.bestBackCamera =
+      this.selectBestQualityCamera(backCameras) || this.devices[0];
+    this.bestFrontCamera = this.selectBestQualityCamera(frontCameras);
+
+    console.log("Camera selection:", {
+      back: this.bestBackCamera?.label,
+      front: this.bestFrontCamera?.label,
+    });
+  }
+
+  selectBestQualityCamera(cameras) {
+    if (!cameras.length) return null;
+    if (cameras.length === 1) return cameras[0];
+
+    // Score cameras based on label quality indicators
+    const scored = cameras.map((camera) => {
+      const label = camera.label.toLowerCase();
+      let score = 0;
+
+      // Prefer cameras with quality indicators
+      if (label.includes("hd") || label.includes("high")) score += 2;
+      if (label.includes("4k") || label.includes("uhd")) score += 5;
+      if (label.includes("main") || label.includes("primary")) score += 3;
+      if (label.includes("wide")) score += 1;
+
+      // Avoid low quality cameras
+      if (label.includes("vga") || label.includes("low")) score -= 2;
+
+      return { camera, score };
+    });
+
+    // Return highest scoring camera
+    scored.sort((a, b) => b.score - a.score);
+    return scored[0].camera;
+  }
+
+  createCameraToggleUI() {
+    // Remove existing toggle if present
+    const existingToggle = document.getElementById("cameraToggle");
+    if (existingToggle) {
+      existingToggle.remove();
+    }
+
+    // Only create toggle if we have multiple cameras
+    if (!this.bestFrontCamera || !this.bestBackCamera) {
+      return;
+    }
+
+    const cameraContainer = document.querySelector(".camera-container");
+    if (!cameraContainer) return;
+
+    const toggleGroup = document.createElement("div");
+    toggleGroup.id = "cameraToggle";
+    toggleGroup.className = "camera-toggle-group";
+
+    toggleGroup.innerHTML = `
+      <button class="camera-toggle-btn ${this.currentCameraType === "back" ? "active" : ""}"
+              data-camera="back" title="Back Camera">
+        📷
+      </button>
+      <button class="camera-toggle-btn ${this.currentCameraType === "front" ? "active" : ""}"
+              data-camera="front" title="Front Camera">
+        🤳
+      </button>
+    `;
+
+    // Add event listeners
+    toggleGroup.addEventListener("click", (e) => {
+      const button = e.target.closest(".camera-toggle-btn");
+      if (!button) return;
+
+      const cameraType = button.dataset.camera;
+      this.switchToCamera(cameraType);
+    });
+
+    cameraContainer.appendChild(toggleGroup);
   }
 
   async startCamera(deviceId, resolution = null) {
@@ -116,15 +216,30 @@ class CameraManager {
       // Apply mirroring to video preview for front-facing cameras
       this.updateVideoMirroring();
 
-      // Update device list with labels now that we have permission
-      await this.updateDeviceList();
-
       return true;
     } catch (error) {
       console.error("Error starting camera:", error);
       this.showError("Failed to start camera");
       return false;
     }
+  }
+
+  async switchToCamera(cameraType) {
+    const targetCamera =
+      cameraType === "front" ? this.bestFrontCamera : this.bestBackCamera;
+    if (!targetCamera || targetCamera.deviceId === this.currentDeviceId) {
+      return;
+    }
+
+    this.currentCameraType = cameraType;
+    await this.startCamera(targetCamera.deviceId);
+    await this.updateResolutionForCurrentCamera();
+
+    // Update toggle UI
+    const toggleButtons = document.querySelectorAll(".camera-toggle-btn");
+    toggleButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.camera === cameraType);
+    });
   }
 
   async getMaxSupportedResolution() {
@@ -170,10 +285,7 @@ class CameraManager {
     return null;
   }
 
-  async updateResolutionList() {
-    const select = document.getElementById("resolutionSelect");
-    select.innerHTML = '<option value="">Select Resolution</option>';
-
+  async updateResolutionForCurrentCamera() {
     // Test what's the maximum resolution this camera supports
     const maxSupportedResolution = await this.getMaxSupportedResolution();
 
@@ -224,60 +336,20 @@ class CameraManager {
       );
     }
 
-    // Populate the select with available resolutions
-    availableResolutions.forEach((resolution) => {
-      const option = document.createElement("option");
-      option.value = `${resolution.width}x${resolution.height}`;
-      option.textContent = resolution.label;
-      select.appendChild(option);
-    });
-
-    // Set default selection - prefer QHD, then Full HD, then highest available
-    let defaultRes =
+    // Select best resolution automatically - prefer QHD, then Full HD, then highest available
+    let bestRes =
       availableResolutions.find((r) => r.width === 2560 && r.height === 1440) ||
       availableResolutions.find((r) => r.width === 1920 && r.height === 1080) ||
       availableResolutions[0];
 
-    if (defaultRes) {
-      select.value = `${defaultRes.width}x${defaultRes.height}`;
-
-      // If we're not already using this resolution, switch to it
-      if (
-        !this.currentResolution ||
-        this.currentResolution.width !== defaultRes.width ||
-        this.currentResolution.height !== defaultRes.height
-      ) {
-        await this.startCamera(this.currentDeviceId, defaultRes);
-      }
-    }
-  }
-
-  async switchResolution(resolutionString) {
-    if (!resolutionString || !this.currentDeviceId) return;
-
-    const [width, height] = resolutionString.split("x").map(Number);
-    const resolution = { width, height };
-
-    try {
-      await this.startCamera(this.currentDeviceId, resolution);
-    } catch (error) {
-      console.error("Failed to switch to resolution:", resolution, error);
-      this.showError(
-        `Resolution ${width}×${height} not supported by this camera`,
-      );
-
-      // Revert to previous selection
-      const resolutionSelect = document.getElementById("resolutionSelect");
-      if (this.currentResolution) {
-        resolutionSelect.value = `${this.currentResolution.width}x${this.currentResolution.height}`;
-      }
-    }
-  }
-
-  async switchCamera(deviceId) {
-    if (deviceId && deviceId !== this.currentDeviceId) {
-      await this.startCamera(deviceId);
-      await this.updateResolutionList();
+    // If we're not already using this resolution, switch to it
+    if (
+      bestRes &&
+      (!this.currentResolution ||
+        this.currentResolution.width !== bestRes.width ||
+        this.currentResolution.height !== bestRes.height)
+    ) {
+      await this.startCamera(this.currentDeviceId, bestRes);
     }
   }
 

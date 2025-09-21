@@ -98,6 +98,47 @@ body {
   box-shadow: 0 2px 8px rgba(33, 150, 243, 0.8);
 }
 
+/* Camera toggle button group */
+.camera-toggle-group {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 25px;
+  padding: 4px;
+  gap: 2px;
+  z-index: 1000;
+}
+
+.camera-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.camera-toggle-btn.active {
+  background: #2196f3;
+  color: white;
+}
+
+.camera-toggle-btn.active:hover {
+  background: #1976d2;
+}
+
 #cameraPreview {
   max-width: 100%;
   max-height: 100%;
@@ -489,6 +530,12 @@ body {
   .floating-capture-btn {
     bottom: max(20px, env(safe-area-inset-bottom, 20px));
     right: max(20px, env(safe-area-inset-right, 20px));
+  }
+
+  /* Adjust camera toggle position for safe areas */
+  .camera-toggle-group {
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    left: max(20px, env(safe-area-inset-left, 20px));
   }
 
   /* Compact project section */
