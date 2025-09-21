@@ -43,7 +43,8 @@ class CameraManager {
       if (startDeviceId) {
         this.currentCameraType = this.bestBackCamera ? "back" : "front";
         await this.startCamera(startDeviceId);
-        await this.updateResolutionForCurrentCamera();
+        // No need to call updateResolutionForCurrentCamera() here since startCamera
+        // without resolution will use camera's default best resolution
       }
 
       // Create camera toggle UI
@@ -79,12 +80,7 @@ class CameraManager {
         label.includes("front") ||
         label.includes("user") ||
         label.includes("selfie") ||
-        label.includes("facetime") ||
-        (!label.includes("back") &&
-          !label.includes("rear") &&
-          !label.includes("environment") &&
-          !label.includes("main") &&
-          this.devices.length > 1); // If multiple cameras and no clear indicator, assume second+ is front
+        label.includes("facetime");
 
       if (isFront) {
         frontCameras.push(device);
@@ -94,13 +90,23 @@ class CameraManager {
     });
 
     // Select best cameras - prefer those with higher quality indicators in name
-    this.bestBackCamera =
-      this.selectBestQualityCamera(backCameras) || this.devices[0];
+    this.bestBackCamera = this.selectBestQualityCamera(backCameras);
     this.bestFrontCamera = this.selectBestQualityCamera(frontCameras);
 
+    // If we have only one camera and no clear front/back distinction, treat it as back camera
+    if (
+      this.devices.length === 1 &&
+      !this.bestBackCamera &&
+      !this.bestFrontCamera
+    ) {
+      this.bestBackCamera = this.devices[0];
+    }
+
     console.log("Camera selection:", {
+      total: this.devices.length,
       back: this.bestBackCamera?.label,
       front: this.bestFrontCamera?.label,
+      devices: this.devices.map((d) => d.label),
     });
   }
 
@@ -230,6 +236,8 @@ class CameraManager {
             width: this.video.videoWidth,
             height: this.video.videoHeight,
           };
+          // Update resolution overlay with actual dimensions
+          this.updateResolutionOverlay();
         }
 
         // Small delay to ensure video dimensions are stable
@@ -261,7 +269,7 @@ class CameraManager {
 
     this.currentCameraType = cameraType;
     await this.startCamera(targetCamera.deviceId);
-    await this.updateResolutionForCurrentCamera();
+    // Camera will use its default best resolution
 
     // Update toggle UI
     const toggleButtons = document.querySelectorAll(".camera-toggle-btn");
