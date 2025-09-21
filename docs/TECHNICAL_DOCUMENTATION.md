@@ -18,16 +18,137 @@ The application follows a modular, event-driven architecture with distinct respo
 - **Database** (`js/database.js`) - IndexedDB storage abstraction
 - **MoviePlayer** (`js/moviePlayer.js`) - Filmstrip animation and playback
 
+### Component Architecture
+
+```mermaid
+graph TB
+    subgraph "Application Layer"
+        APP[EdgeSnapApp<br/>Main Controller]
+    end
+    
+    subgraph "Input/Output Layer"
+        CAM[CameraManager<br/>Device Control]
+        ED[EdgeDetection<br/>OpenCV Processing]
+        UI[DOM Interface<br/>User Interaction]
+    end
+    
+    subgraph "Business Logic Layer"
+        PM[ProjectManager<br/>Project Lifecycle]
+        SM[SeriesManager<br/>Photo Management]
+        MP[MoviePlayer<br/>Animation Playback]
+    end
+    
+    subgraph "Data Layer"
+        DB[(Database<br/>IndexedDB)]
+        LS[Local Storage<br/>Browser APIs]
+    end
+    
+    %% Dependencies
+    APP --> CAM
+    APP --> ED
+    APP --> PM
+    APP --> SM
+    APP --> MP
+    APP --> UI
+    
+    PM --> DB
+    SM --> DB
+    CAM --> ED
+    ED --> UI
+    SM --> UI
+    MP --> UI
+    
+    %% External Dependencies
+    ED -.-> OCV[OpenCV.js]
+    CAM -.-> WEB[WebRTC APIs]
+    DB -.-> IDB[IndexedDB APIs]
+    
+    %% Styling
+    classDef app fill:#ff9999
+    classDef io fill:#99ccff
+    classDef logic fill:#99ff99
+    classDef data fill:#ffcc99
+    classDef external fill:#f0f0f0
+    
+    class APP app
+    class CAM,ED,UI io
+    class PM,SM,MP logic
+    class DB,LS data
+    class OCV,WEB,IDB external
+```
+
 ### Data Flow Architecture
 
-```
-Device Cameras → Automatic Selection → Aspect Ratio Optimization
-      ↓                 ↓                      ↓
-Video Stream → Edge Processing → Canvas Overlay
-      ↓              ↓              ↓
-User Capture → IndexedDB Storage → Series Management
-      ↓              ↓              ↓
-Project Data → Film Strip UI → Movie Playback
+```mermaid
+flowchart TD
+    %% Device Layer
+    DC[Device Cameras] --> CE[Camera Enumeration]
+    CE --> CS[Camera Selection Logic]
+    CS --> BFC[Best Front Camera]
+    CS --> BBC[Best Back Camera]
+    
+    %% Camera Stream Layer
+    BFC --> VSF[Video Stream Front]
+    BBC --> VSB[Video Stream Back]
+    VSF --> ARC[Aspect Ratio Constraints]
+    VSB --> ARC
+    ARC --> VP[Video Preview]
+    
+    %% User Interaction Layer
+    VP --> UC[User Capture]
+    UC --> CC[Canvas Capture]
+    CC --> PO[Photo Object]
+    
+    %% Storage Layer
+    PO --> SM[Series Manager]
+    SM --> IDB[(IndexedDB)]
+    IDB --> PD[Project Data]
+    
+    %% Edge Detection Pipeline
+    PO --> ED[Edge Detection]
+    ED --> OCV[OpenCV Processing]
+    OCV --> EO[Edge Overlay]
+    EO --> VP
+    
+    %% UI Layer
+    SM --> FS[Film Strip UI]
+    FS --> PN[Photo Navigation]
+    PN --> ED
+    
+    %% Movie Playback
+    SM --> MP[Movie Player]
+    MP --> AP[Animation Playback]
+    
+    %% Event System
+    UC -.->|photoAdded| EA[Event Bus]
+    PM -.->|projectChanged| EA
+    SM -.->|photosLoaded| EA
+    PN -.->|seriesNavigation| EA
+    EA -.-> ED
+    EA -.-> FS
+    EA -.-> VP
+    
+    %% Project Management
+    PM[Project Manager] --> IDB
+    PM --> PD
+    
+    %% Orientation Handling
+    OR[Orientation Change] --> ARC
+    OR --> VSF
+    OR --> VSB
+    
+    %% Component Styling
+    classDef camera fill:#e1f5fe
+    classDef storage fill:#f3e5f5
+    classDef ui fill:#e8f5e8
+    classDef processing fill:#fff3e0
+    classDef events fill:#fce4ec
+    
+    class DC,CE,CS,BFC,BBC,VSF,VSB,ARC,VP camera
+    class SM,IDB,PD storage
+    class FS,PN,MP,AP ui
+    class ED,OCV,EO,CC,PO processing
+    class EA,UC,OR events
 ```
 
 ## 1. Application Initialization
@@ -195,16 +316,32 @@ if (this.edgesEnabled && this.edgeImageData && hasPhotos()) {
 - `cameraLayoutChanged` → Triggers canvas resizing
 - `clearEdgeOverlay` → Forces overlay cleanup
 
-**Event Flow Example:**
-```javascript
-// Photo capture workflow
-user.click(captureButton) 
-  → CameraManager.capturePhoto()
-  → SeriesManager.addPhoto() 
-  → Database.store()
-  → document.dispatchEvent('photoAdded')
-  → EdgeSnapApp.updateEdgeOverlay()
-  → UI.refresh()
+**Event Flow Example - Photo Capture Workflow:**
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI as DOM Interface
+    participant App as EdgeSnapApp
+    participant Cam as CameraManager
+    participant SM as SeriesManager
+    participant DB as Database
+    participant ED as EdgeDetection
+    participant Events as Event Bus
+    
+    User->>UI: Click capture button
+    UI->>App: capturePhoto()
+    App->>Cam: capturePhoto()
+    Cam-->>App: photo object
+    App->>SM: addPhoto(photo)
+    SM->>DB: store photo
+    DB-->>SM: success
+    SM->>Events: dispatch 'photoAdded'
+    Events->>App: photoAdded event
+    App->>ED: updateEdgeOverlay()
+    App->>UI: updateFilmstrip()
+    App->>UI: updateResolutionOverlay()
+    Note over User,UI: Photo appears in filmstrip<br/>Edge overlay updates
 ```
 
 ## 6. Performance Optimizations
