@@ -225,11 +225,21 @@ class CameraManager {
       const constraints = {
         video: {
           deviceId: deviceId ? { exact: deviceId } : undefined,
-          aspectRatio: { ideal: this.getTargetAspectRatio() },
-          ...(targetResolution && {
-            width: { ideal: targetResolution.width },
-            height: { ideal: targetResolution.height },
-          }),
+
+          ...(targetResolution
+            ? {
+                width: { ideal: targetResolution.width },
+                height: { ideal: targetResolution.height },
+              }
+            : this.isPortraitMode()
+              ? {
+                  height: { ideal: 1920 }, // High resolution for portrait
+                  aspectRatio: { ideal: 0.625 }, // 10:16
+                }
+              : {
+                  width: { ideal: 1920 }, // High resolution for landscape
+                  aspectRatio: { ideal: 1.6 }, // 16:10
+                }),
           facingMode: deviceId ? undefined : "environment",
         },
       };
