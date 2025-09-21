@@ -173,6 +173,11 @@ class EdgeSnapApp {
     const referencePhoto =
       currentPhoto || (photos.length > 0 ? photos[photos.length - 1] : null);
 
+    // If no photos, ensure edgeImageData is cleared to prevent stale overlays
+    if (!referencePhoto && this.edgeDetection.edgeImageData) {
+      this.edgeDetection.edgeImageData = null;
+    }
+
     this.updateEdgeOverlayForPhoto(referencePhoto);
   }
 
@@ -200,7 +205,9 @@ class EdgeSnapApp {
         this.camera.isReady() &&
         this.edgeDetection &&
         this.edgeDetection.isEnabled() &&
-        this.edgeDetection.edgeImageData
+        this.edgeDetection.edgeImageData &&
+        this.seriesManager &&
+        this.seriesManager.hasPhotos() // Only redraw if there are photos
       ) {
         // Only redraw if we have edge data and canvas is ready
         const canvas = document.getElementById("edgeOverlay");
