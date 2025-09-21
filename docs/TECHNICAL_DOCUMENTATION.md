@@ -63,12 +63,12 @@ graph TB
     CAM -.-> WEB[WebRTC APIs]
     DB -.-> IDB[IndexedDB APIs]
     
-    %% Styling
-    classDef app fill:#ff9999
-    classDef io fill:#99ccff
-    classDef logic fill:#99ff99
-    classDef data fill:#ffcc99
-    classDef external fill:#f0f0f0
+    %% Styling with proper contrast for dark/light mode
+    classDef app fill:#d32f2f,color:#ffffff,stroke:#b71c1c
+    classDef io fill:#1976d2,color:#ffffff,stroke:#0d47a1
+    classDef logic fill:#388e3c,color:#ffffff,stroke:#1b5e20
+    classDef data fill:#f57c00,color:#ffffff,stroke:#e65100
+    classDef external fill:#616161,color:#ffffff,stroke:#424242
     
     class APP app
     class CAM,ED,UI io
@@ -137,12 +137,12 @@ flowchart TD
     OR --> VSF
     OR --> VSB
     
-    %% Component Styling
-    classDef camera fill:#e1f5fe
-    classDef storage fill:#f3e5f5
-    classDef ui fill:#e8f5e8
-    classDef processing fill:#fff3e0
-    classDef events fill:#fce4ec
+    %% Component Styling with proper contrast for dark/light mode
+    classDef camera fill:#0277bd,color:#ffffff,stroke:#01579b
+    classDef storage fill:#7b1fa2,color:#ffffff,stroke:#4a148c
+    classDef ui fill:#2e7d32,color:#ffffff,stroke:#1b5e20
+    classDef processing fill:#ef6c00,color:#ffffff,stroke:#bf360c
+    classDef events fill:#c2185b,color:#ffffff,stroke:#880e4f
     
     class DC,CE,CS,BFC,BBC,VSF,VSB,ARC,VP camera
     class SM,IDB,PD storage
