@@ -64,17 +64,34 @@ graph TB
     DB -.-> IDB[IndexedDB APIs]
     
     %% Styling with proper contrast for dark/light mode
-    classDef app fill:#d32f2f,color:#ffffff,stroke:#b71c1c
-    classDef io fill:#1976d2,color:#ffffff,stroke:#0d47a1
-    classDef logic fill:#388e3c,color:#ffffff,stroke:#1b5e20
-    classDef data fill:#f57c00,color:#ffffff,stroke:#e65100
-    classDef external fill:#616161,color:#ffffff,stroke:#424242
+    classDef app fill:#d32f2f,color:#ffffff,stroke:#b71c1c,stroke-width:2px
+    classDef io fill:#1976d2,color:#ffffff,stroke:#0d47a1,stroke-width:2px
+    classDef logic fill:#388e3c,color:#ffffff,stroke:#1b5e20,stroke-width:2px
+    classDef data fill:#f57c00,color:#ffffff,stroke:#e65100,stroke-width:2px
+    classDef external fill:#616161,color:#ffffff,stroke:#424242,stroke-width:2px
     
     class APP app
     class CAM,ED,UI io
     class PM,SM,MP logic
     class DB,LS data
     class OCV,WEB,IDB external
+    
+    %% Link styling for better arrow visibility
+    linkStyle default stroke:#333333,stroke-width:2px,color:#333333
+    linkStyle 0 stroke:#333333,stroke-width:2px
+    linkStyle 1 stroke:#333333,stroke-width:2px
+    linkStyle 2 stroke:#333333,stroke-width:2px
+    linkStyle 3 stroke:#333333,stroke-width:2px
+    linkStyle 4 stroke:#333333,stroke-width:2px
+    linkStyle 5 stroke:#333333,stroke-width:2px
+    linkStyle 6 stroke:#333333,stroke-width:2px
+    linkStyle 7 stroke:#333333,stroke-width:2px
+    linkStyle 8 stroke:#333333,stroke-width:2px
+    linkStyle 9 stroke:#333333,stroke-width:2px
+    linkStyle 10 stroke:#333333,stroke-width:2px
+    linkStyle 11 stroke:#666666,stroke-width:2px,stroke-dasharray:5
+    linkStyle 12 stroke:#666666,stroke-width:2px,stroke-dasharray:5
+    linkStyle 13 stroke:#666666,stroke-width:2px,stroke-dasharray:5
 ```
 
 ### Data Flow Architecture
@@ -138,17 +155,20 @@ flowchart TD
     OR --> VSB
     
     %% Component Styling with proper contrast for dark/light mode
-    classDef camera fill:#0277bd,color:#ffffff,stroke:#01579b
-    classDef storage fill:#7b1fa2,color:#ffffff,stroke:#4a148c
-    classDef ui fill:#2e7d32,color:#ffffff,stroke:#1b5e20
-    classDef processing fill:#ef6c00,color:#ffffff,stroke:#bf360c
-    classDef events fill:#c2185b,color:#ffffff,stroke:#880e4f
+    classDef camera fill:#0277bd,color:#ffffff,stroke:#01579b,stroke-width:2px
+    classDef storage fill:#7b1fa2,color:#ffffff,stroke:#4a148c,stroke-width:2px
+    classDef ui fill:#2e7d32,color:#ffffff,stroke:#1b5e20,stroke-width:2px
+    classDef processing fill:#ef6c00,color:#ffffff,stroke:#bf360c,stroke-width:2px
+    classDef events fill:#c2185b,color:#ffffff,stroke:#880e4f,stroke-width:2px
     
     class DC,CE,CS,BFC,BBC,VSF,VSB,ARC,VP camera
     class SM,IDB,PD storage
     class FS,PN,MP,AP ui
     class ED,OCV,EO,CC,PO processing
     class EA,UC,OR events
+    
+    %% Link styling for better arrow visibility in data flow
+    linkStyle default stroke:#333333,stroke-width:2px
 ```
 
 ## 1. Application Initialization
