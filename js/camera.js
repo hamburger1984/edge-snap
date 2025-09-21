@@ -8,13 +8,14 @@ class CameraManager {
     this.bestFrontCamera = null;
     this.bestBackCamera = null;
     this.currentCameraType = "back"; // 'front' or 'back'
+    this.lastOrientation = null; // Will be set during init
 
     // Handle window resize and orientation changes
     const handleLayoutChange = () => {
       // Small delay to ensure layout has settled
       setTimeout(() => {
         if (this.video.videoWidth && this.video.videoHeight) {
-          this.updateCameraLayout();
+          this.handleOrientationChange();
         }
       }, 100);
     };
@@ -25,6 +26,33 @@ class CameraManager {
     // Also listen for visual viewport changes on mobile
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", handleLayoutChange);
+    }
+  }
+
+  async handleOrientationChange() {
+    const currentOrientation = this.isPortraitMode();
+
+    // Check if orientation actually changed (or if this is first call)
+    if (
+      this.lastOrientation === null ||
+      currentOrientation !== this.lastOrientation
+    ) {
+      if (this.lastOrientation !== null) {
+        console.log(
+          "Orientation changed:",
+          this.lastOrientation ? "portrait→landscape" : "landscape→portrait",
+        );
+
+        // Restart camera with new aspect ratio constraints
+        if (this.currentDeviceId) {
+          await this.startCamera(this.currentDeviceId);
+        }
+      }
+
+      this.lastOrientation = currentOrientation;
+    } else {
+      // Just update layout if no orientation change
+      this.updateCameraLayout();
     }
   }
 
@@ -40,6 +68,9 @@ class CameraManager {
 
   async init() {
     try {
+      // Initialize orientation tracking
+      this.lastOrientation = this.isPortraitMode();
+
       // Request camera permission
       await navigator.mediaDevices.getUserMedia({ video: true });
 
