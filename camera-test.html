@@ -15,7 +15,8 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         background-color: #1a1a1a;
         color: #ffffff;
         padding: 20px;
@@ -29,7 +30,7 @@
       }
 
       .header h1 {
-        color: #2196F3;
+        color: #2196f3;
         margin-bottom: 10px;
       }
 
@@ -72,7 +73,7 @@
       }
 
       .section h3 {
-        color: #2196F3;
+        color: #2196f3;
         margin-bottom: 15px;
         font-size: 16px;
         font-weight: 600;
@@ -89,7 +90,9 @@
         font-size: 14px;
       }
 
-      select, input[type="number"], input[type="text"] {
+      select,
+      input[type="number"],
+      input[type="text"] {
         width: 100%;
         padding: 8px 12px;
         background: #1a1a1a;
@@ -99,9 +102,10 @@
         font-size: 14px;
       }
 
-      select:focus, input:focus {
+      select:focus,
+      input:focus {
         outline: none;
-        border-color: #2196F3;
+        border-color: #2196f3;
       }
 
       .checkbox-group {
@@ -117,7 +121,7 @@
 
       .constraint-row {
         display: grid;
-        grid-template-columns: auto 1fr auto;
+        grid-template-columns: auto 1fr auto auto;
         gap: 10px;
         align-items: center;
         margin-bottom: 10px;
@@ -127,8 +131,13 @@
         width: 80px;
       }
 
+      .constraint-row select {
+        width: 80px;
+        font-size: 12px;
+      }
+
       button {
-        background: #2196F3;
+        background: #2196f3;
         color: white;
         border: none;
         padding: 12px 24px;
@@ -142,7 +151,7 @@
       }
 
       button:hover {
-        background: #1976D2;
+        background: #1976d2;
       }
 
       button:disabled {
@@ -192,7 +201,7 @@
       }
 
       .status-info h4 {
-        color: #2196F3;
+        color: #2196f3;
         margin-bottom: 10px;
         font-size: 14px;
       }
@@ -248,7 +257,10 @@
   <body>
     <div class="header">
       <h1>Camera Test Tool</h1>
-      <p>Debug mobile camera issues with detailed constraint and transformation testing</p>
+      <p>
+        Debug mobile camera issues with detailed constraint and transformation
+        testing
+      </p>
     </div>
 
     <div class="test-container">
@@ -273,18 +285,36 @@
             <input type="checkbox" id="enableWidth" />
             <label for="enableWidth">Width:</label>
             <input type="number" id="widthValue" value="1920" disabled />
+            <select id="widthMode" disabled>
+              <option value="ideal">Ideal</option>
+              <option value="exact">Exact</option>
+            </select>
           </div>
 
           <div class="constraint-row">
             <input type="checkbox" id="enableHeight" />
             <label for="enableHeight">Height:</label>
             <input type="number" id="heightValue" value="1080" disabled />
+            <select id="heightMode" disabled>
+              <option value="ideal">Ideal</option>
+              <option value="exact">Exact</option>
+            </select>
           </div>
 
           <div class="constraint-row">
             <input type="checkbox" id="enableRatio" />
             <label for="enableRatio">Aspect Ratio:</label>
-            <input type="number" id="ratioValue" value="1.77" step="0.01" disabled />
+            <input
+              type="number"
+              id="ratioValue"
+              value="1.77"
+              step="0.01"
+              disabled
+            />
+            <select id="ratioMode" disabled>
+              <option value="ideal">Ideal</option>
+              <option value="exact">Exact</option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -301,7 +331,9 @@
         <div class="section">
           <h3>🎮 Camera Controls</h3>
           <button id="startCamera">Start Camera Preview</button>
-          <button id="stopCamera" class="stop-btn" disabled>Stop Camera Preview</button>
+          <button id="stopCamera" class="stop-btn" disabled>
+            Stop Camera Preview
+          </button>
         </div>
 
         <!-- Transform Controls -->
@@ -310,17 +342,38 @@
 
           <div class="transform-controls">
             <label for="scaleX">Scale X:</label>
-            <input type="range" id="scaleX" min="-2" max="2" step="0.1" value="1" />
+            <input
+              type="range"
+              id="scaleX"
+              min="-2"
+              max="2"
+              step="0.1"
+              value="1"
+            />
           </div>
 
           <div class="transform-controls">
             <label for="scaleY">Scale Y:</label>
-            <input type="range" id="scaleY" min="-2" max="2" step="0.1" value="1" />
+            <input
+              type="range"
+              id="scaleY"
+              min="-2"
+              max="2"
+              step="0.1"
+              value="1"
+            />
           </div>
 
           <div class="transform-controls">
             <label for="rotation">Rotation:</label>
-            <input type="range" id="rotation" min="-180" max="180" step="15" value="0" />
+            <input
+              type="range"
+              id="rotation"
+              min="-180"
+              max="180"
+              step="15"
+              value="0"
+            />
           </div>
 
           <button id="resetTransform">Reset Transform</button>
@@ -334,9 +387,7 @@
           <h3>📺 Camera Preview</h3>
           <div class="video-container">
             <video id="testVideo" autoplay playsinline muted></video>
-            <div class="video-overlay" id="videoOverlay">
-              No video stream
-            </div>
+            <div class="video-overlay" id="videoOverlay">No video stream</div>
           </div>
         </div>
 
@@ -349,7 +400,9 @@
             <h4>Camera Information</h4>
             <p>Selected: <code id="selectedCamera">None</code></p>
             <p>Resolution: <code id="actualResolution">N/A</code></p>
-            <p>Applied Constraints: <code id="appliedConstraints">None</code></p>
+            <p>
+              Applied Constraints: <code id="appliedConstraints">None</code>
+            </p>
           </div>
 
           <div class="status-info">
@@ -362,8 +415,15 @@
 
           <div class="status-info">
             <h4>Device Orientation</h4>
-            <p>Current State: <code id="orientationState">Detecting...</code></p>
-            <p>Detection Logic: <code id="orientationLogic">window.innerWidth vs window.innerHeight</code></p>
+            <p>
+              Current State: <code id="orientationState">Detecting...</code>
+            </p>
+            <p>
+              Detection Logic:
+              <code id="orientationLogic"
+                >window.innerWidth vs window.innerHeight</code
+              >
+            </p>
             <p>Screen Orientation: <code id="screenOrientation">N/A</code></p>
           </div>
         </div>
@@ -374,12 +434,12 @@
       class CameraTestTool {
         constructor() {
           this.stream = null;
-          this.video = document.getElementById('testVideo');
+          this.video = document.getElementById("testVideo");
           this.devices = [];
           this.currentTransform = {
             scaleX: 1,
             scaleY: 1,
-            rotation: 0
+            rotation: 0,
           };
 
           this.init();
@@ -391,50 +451,69 @@
           this.updateOrientationInfo();
 
           // Update orientation info on resize/orientation change
-          window.addEventListener('resize', () => this.updateOrientationInfo());
-          window.addEventListener('orientationchange', () => {
+          window.addEventListener("resize", () => this.updateOrientationInfo());
+          window.addEventListener("orientationchange", () => {
             setTimeout(() => this.updateOrientationInfo(), 100);
           });
         }
 
         setupEventListeners() {
           // Constraint checkboxes
-          document.getElementById('enableWidth').addEventListener('change', (e) => {
-            document.getElementById('widthValue').disabled = !e.target.checked;
-          });
+          document
+            .getElementById("enableWidth")
+            .addEventListener("change", (e) => {
+              document.getElementById("widthValue").disabled =
+                !e.target.checked;
+              document.getElementById("widthMode").disabled = !e.target.checked;
+            });
 
-          document.getElementById('enableHeight').addEventListener('change', (e) => {
-            document.getElementById('heightValue').disabled = !e.target.checked;
-          });
+          document
+            .getElementById("enableHeight")
+            .addEventListener("change", (e) => {
+              document.getElementById("heightValue").disabled =
+                !e.target.checked;
+              document.getElementById("heightMode").disabled =
+                !e.target.checked;
+            });
 
-          document.getElementById('enableRatio').addEventListener('change', (e) => {
-            document.getElementById('ratioValue').disabled = !e.target.checked;
-          });
+          document
+            .getElementById("enableRatio")
+            .addEventListener("change", (e) => {
+              document.getElementById("ratioValue").disabled =
+                !e.target.checked;
+              document.getElementById("ratioMode").disabled = !e.target.checked;
+            });
 
           // Camera controls
-          document.getElementById('startCamera').addEventListener('click', () => this.startCamera());
-          document.getElementById('stopCamera').addEventListener('click', () => this.stopCamera());
+          document
+            .getElementById("startCamera")
+            .addEventListener("click", () => this.startCamera());
+          document
+            .getElementById("stopCamera")
+            .addEventListener("click", () => this.stopCamera());
 
           // Transform controls
-          document.getElementById('scaleX').addEventListener('input', (e) => {
+          document.getElementById("scaleX").addEventListener("input", (e) => {
             this.currentTransform.scaleX = parseFloat(e.target.value);
             this.updateTransform();
           });
 
-          document.getElementById('scaleY').addEventListener('input', (e) => {
+          document.getElementById("scaleY").addEventListener("input", (e) => {
             this.currentTransform.scaleY = parseFloat(e.target.value);
             this.updateTransform();
           });
 
-          document.getElementById('rotation').addEventListener('input', (e) => {
+          document.getElementById("rotation").addEventListener("input", (e) => {
             this.currentTransform.rotation = parseInt(e.target.value);
             this.updateTransform();
           });
 
-          document.getElementById('resetTransform').addEventListener('click', () => this.resetTransform());
+          document
+            .getElementById("resetTransform")
+            .addEventListener("click", () => this.resetTransform());
 
           // Video loaded metadata
-          this.video.addEventListener('loadedmetadata', () => {
+          this.video.addEventListener("loadedmetadata", () => {
             this.updateVideoInfo();
           });
         }
@@ -445,10 +524,12 @@
             await navigator.mediaDevices.getUserMedia({ video: true });
 
             const devices = await navigator.mediaDevices.enumerateDevices();
-            this.devices = devices.filter(device => device.kind === 'videoinput');
+            this.devices = devices.filter(
+              (device) => device.kind === "videoinput",
+            );
 
-            const select = document.getElementById('cameraSelect');
-            select.innerHTML = '';
+            const select = document.getElementById("cameraSelect");
+            select.innerHTML = "";
 
             if (this.devices.length === 0) {
               select.innerHTML = '<option value="">No cameras found</option>';
@@ -456,15 +537,14 @@
             }
 
             this.devices.forEach((device, index) => {
-              const option = document.createElement('option');
+              const option = document.createElement("option");
               option.value = device.deviceId;
               option.textContent = device.label || `Camera ${index + 1}`;
               select.appendChild(option);
             });
-
           } catch (error) {
-            console.error('Error loading cameras:', error);
-            this.showError('Failed to load cameras: ' + error.message);
+            console.error("Error loading cameras:", error);
+            this.showError("Failed to load cameras: " + error.message);
           }
         }
 
@@ -472,9 +552,10 @@
           try {
             this.clearError();
 
-            const selectedDeviceId = document.getElementById('cameraSelect').value;
+            const selectedDeviceId =
+              document.getElementById("cameraSelect").value;
             if (!selectedDeviceId) {
-              this.showError('Please select a camera first');
+              this.showError("Please select a camera first");
               return;
             }
 
@@ -485,74 +566,84 @@
             constraints.video.deviceId = { exact: selectedDeviceId };
 
             // Width constraint
-            if (document.getElementById('enableWidth').checked) {
-              const width = parseInt(document.getElementById('widthValue').value);
+            if (document.getElementById("enableWidth").checked) {
+              const width = parseInt(
+                document.getElementById("widthValue").value,
+              );
+              const mode = document.getElementById("widthMode").value;
               if (width > 0) {
-                constraints.video.width = { ideal: width };
+                constraints.video.width = { [mode]: width };
               }
             }
 
             // Height constraint
-            if (document.getElementById('enableHeight').checked) {
-              const height = parseInt(document.getElementById('heightValue').value);
+            if (document.getElementById("enableHeight").checked) {
+              const height = parseInt(
+                document.getElementById("heightValue").value,
+              );
+              const mode = document.getElementById("heightMode").value;
               if (height > 0) {
-                constraints.video.height = { ideal: height };
+                constraints.video.height = { [mode]: height };
               }
             }
 
             // Aspect ratio constraint
-            if (document.getElementById('enableRatio').checked) {
-              const ratio = parseFloat(document.getElementById('ratioValue').value);
+            if (document.getElementById("enableRatio").checked) {
+              const ratio = parseFloat(
+                document.getElementById("ratioValue").value,
+              );
+              const mode = document.getElementById("ratioMode").value;
               if (ratio > 0) {
-                constraints.video.aspectRatio = { ideal: ratio };
+                constraints.video.aspectRatio = { [mode]: ratio };
               }
             }
 
             // Facing mode
-            const facingMode = document.getElementById('facingMode').value;
+            const facingMode = document.getElementById("facingMode").value;
             if (facingMode) {
               constraints.video.facingMode = facingMode;
             }
 
             // Stop existing stream
             if (this.stream) {
-              this.stream.getTracks().forEach(track => track.stop());
+              this.stream.getTracks().forEach((track) => track.stop());
             }
 
             // Start new stream
-            this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+            this.stream =
+              await navigator.mediaDevices.getUserMedia(constraints);
             this.video.srcObject = this.stream;
 
             // Update UI
-            document.getElementById('startCamera').disabled = true;
-            document.getElementById('stopCamera').disabled = false;
+            document.getElementById("startCamera").disabled = true;
+            document.getElementById("stopCamera").disabled = false;
 
             // Update status
             this.updateCameraStatus(selectedDeviceId, constraints);
-
           } catch (error) {
-            console.error('Error starting camera:', error);
-            this.showError('Failed to start camera: ' + error.message);
+            console.error("Error starting camera:", error);
+            this.showError("Failed to start camera: " + error.message);
           }
         }
 
         stopCamera() {
           if (this.stream) {
-            this.stream.getTracks().forEach(track => track.stop());
+            this.stream.getTracks().forEach((track) => track.stop());
             this.stream = null;
           }
 
           this.video.srcObject = null;
 
           // Update UI
-          document.getElementById('startCamera').disabled = false;
-          document.getElementById('stopCamera').disabled = true;
+          document.getElementById("startCamera").disabled = false;
+          document.getElementById("stopCamera").disabled = true;
 
           // Clear status
-          document.getElementById('videoOverlay').textContent = 'No video stream';
-          document.getElementById('actualResolution').textContent = 'N/A';
-          document.getElementById('selectedCamera').textContent = 'None';
-          document.getElementById('appliedConstraints').textContent = 'None';
+          document.getElementById("videoOverlay").textContent =
+            "No video stream";
+          document.getElementById("actualResolution").textContent = "N/A";
+          document.getElementById("selectedCamera").textContent = "None";
+          document.getElementById("appliedConstraints").textContent = "None";
         }
 
         updateTransform() {
@@ -562,19 +653,20 @@
           this.video.style.transform = transform;
 
           // Update status display
-          document.getElementById('currentTransform').textContent = transform;
-          document.getElementById('currentScaleX').textContent = scaleX;
-          document.getElementById('currentScaleY').textContent = scaleY;
-          document.getElementById('currentRotation').textContent = rotation + '°';
+          document.getElementById("currentTransform").textContent = transform;
+          document.getElementById("currentScaleX").textContent = scaleX;
+          document.getElementById("currentScaleY").textContent = scaleY;
+          document.getElementById("currentRotation").textContent =
+            rotation + "°";
         }
 
         resetTransform() {
           this.currentTransform = { scaleX: 1, scaleY: 1, rotation: 0 };
 
           // Reset sliders
-          document.getElementById('scaleX').value = 1;
-          document.getElementById('scaleY').value = 1;
-          document.getElementById('rotation').value = 0;
+          document.getElementById("scaleX").value = 1;
+          document.getElementById("scaleY").value = 1;
+          document.getElementById("rotation").value = 0;
 
           this.updateTransform();
         }
@@ -583,25 +675,43 @@
           if (!this.video.videoWidth || !this.video.videoHeight) return;
 
           const resolution = `${this.video.videoWidth}×${this.video.videoHeight}`;
-          document.getElementById('actualResolution').textContent = resolution;
-          document.getElementById('videoOverlay').textContent = resolution;
+          document.getElementById("actualResolution").textContent = resolution;
+          document.getElementById("videoOverlay").textContent = resolution;
         }
 
         updateCameraStatus(deviceId, constraints) {
           // Find selected camera name
-          const selectedDevice = this.devices.find(d => d.deviceId === deviceId);
-          const cameraName = selectedDevice ? selectedDevice.label : 'Unknown';
-          document.getElementById('selectedCamera').textContent = cameraName;
+          const selectedDevice = this.devices.find(
+            (d) => d.deviceId === deviceId,
+          );
+          const cameraName = selectedDevice ? selectedDevice.label : "Unknown";
+          document.getElementById("selectedCamera").textContent = cameraName;
 
           // Format constraints
           const constraintsParts = [];
-          if (constraints.video.width) constraintsParts.push(`width: ${JSON.stringify(constraints.video.width)}`);
-          if (constraints.video.height) constraintsParts.push(`height: ${JSON.stringify(constraints.video.height)}`);
-          if (constraints.video.aspectRatio) constraintsParts.push(`aspectRatio: ${JSON.stringify(constraints.video.aspectRatio)}`);
-          if (constraints.video.facingMode) constraintsParts.push(`facingMode: ${constraints.video.facingMode}`);
+          if (constraints.video.width)
+            constraintsParts.push(
+              `width: ${JSON.stringify(constraints.video.width)}`,
+            );
+          if (constraints.video.height)
+            constraintsParts.push(
+              `height: ${JSON.stringify(constraints.video.height)}`,
+            );
+          if (constraints.video.aspectRatio)
+            constraintsParts.push(
+              `aspectRatio: ${JSON.stringify(constraints.video.aspectRatio)}`,
+            );
+          if (constraints.video.facingMode)
+            constraintsParts.push(
+              `facingMode: ${constraints.video.facingMode}`,
+            );
 
-          const constraintsText = constraintsParts.length > 0 ? constraintsParts.join(', ') : 'Default';
-          document.getElementById('appliedConstraints').textContent = constraintsText;
+          const constraintsText =
+            constraintsParts.length > 0
+              ? constraintsParts.join(", ")
+              : "Default";
+          document.getElementById("appliedConstraints").textContent =
+            constraintsText;
         }
 
         updateOrientationInfo() {
@@ -613,25 +723,27 @@
           const orientationState = isLandscape
             ? `Landscape (${width} > ${height})`
             : `Portrait (${height} > ${width})`;
-          document.getElementById('orientationState').textContent = orientationState;
+          document.getElementById("orientationState").textContent =
+            orientationState;
 
           // Screen orientation API if available
           if (screen && screen.orientation) {
             const orientation = screen.orientation;
-            document.getElementById('screenOrientation').textContent =
+            document.getElementById("screenOrientation").textContent =
               `${orientation.type} (${orientation.angle}°)`;
           } else {
-            document.getElementById('screenOrientation').textContent = 'Not available';
+            document.getElementById("screenOrientation").textContent =
+              "Not available";
           }
         }
 
         showError(message) {
-          const container = document.getElementById('errorContainer');
+          const container = document.getElementById("errorContainer");
           container.innerHTML = `<div class="error-message">${message}</div>`;
         }
 
         clearError() {
-          document.getElementById('errorContainer').innerHTML = '';
+          document.getElementById("errorContainer").innerHTML = "";
         }
       }
 
