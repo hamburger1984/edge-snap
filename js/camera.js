@@ -216,8 +216,12 @@ class CameraManager {
       existingToggle.remove();
     }
 
-    // Only create toggle if we have both front and back cameras
-    if (!this.bestFrontCamera || !this.bestBackCamera) {
+    // Only create toggle if we have different front and back cameras
+    if (
+      !this.bestFrontCamera ||
+      !this.bestBackCamera ||
+      this.bestFrontCamera.deviceId === this.bestBackCamera.deviceId
+    ) {
       return;
     }
 
