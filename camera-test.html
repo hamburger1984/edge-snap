@@ -426,6 +426,14 @@
             </p>
             <p>Screen Orientation: <code id="screenOrientation">N/A</code></p>
           </div>
+
+          <div class="status-info">
+            <h4>Debug Information</h4>
+            <p>User Agent: <code id="userAgent">N/A</code></p>
+            <p>Possible DevTools: <code id="devToolsDetection">N/A</code></p>
+            <p>Aspect Ratio Match: <code id="aspectRatioMatch">N/A</code></p>
+            <p>Expected Aspect: <code id="expectedAspect">N/A</code></p>
+          </div>
         </div>
       </div>
     </div>
@@ -677,6 +685,24 @@
           const resolution = `${this.video.videoWidth}×${this.video.videoHeight}`;
           document.getElementById("actualResolution").textContent = resolution;
           document.getElementById("videoOverlay").textContent = resolution;
+
+          // Check aspect ratio matching
+          const actualAspect = this.video.videoWidth / this.video.videoHeight;
+          const isLandscape = screen.width > screen.height;
+          const expectedAspect = isLandscape
+            ? screen.width / screen.height
+            : screen.height / screen.width;
+          const aspectDiff = Math.abs(actualAspect - expectedAspect);
+
+          const matchStatus =
+            aspectDiff < 0.1
+              ? "✅ Good match"
+              : aspectDiff < 0.3
+                ? "⚠️ Partial match"
+                : "❌ Poor match";
+
+          document.getElementById("aspectRatioMatch").textContent =
+            `${matchStatus} (actual: ${actualAspect.toFixed(2)}, diff: ${aspectDiff.toFixed(2)})`;
         }
 
         updateCameraStatus(deviceId, constraints) {
@@ -737,6 +763,23 @@
             document.getElementById("screenOrientation").textContent =
               "Not available";
           }
+
+          // Debug information
+          document.getElementById("userAgent").textContent =
+            navigator.userAgent.substring(0, 80) + "...";
+
+          const isFirefoxDevTools =
+            navigator.userAgent.includes("Firefox") &&
+            (screenWidth === screenHeight ||
+              Math.abs(screenWidth - screenHeight) < 50);
+          document.getElementById("devToolsDetection").textContent =
+            isFirefoxDevTools ? "Yes (Firefox + square screen)" : "No";
+
+          const expectedAspect = isLandscape
+            ? screenWidth / screenHeight
+            : screenHeight / screenWidth;
+          document.getElementById("expectedAspect").textContent =
+            expectedAspect.toFixed(2);
         }
 
         showError(message) {

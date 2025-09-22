@@ -73,8 +73,22 @@ class CameraManager {
   getOptimalConstraints(deviceId = null) {
     // Get constraints that match native camera app behavior
     const targetAspectRatio = this.getTargetAspectRatio();
+    const isPortrait = this.isPortraitMode();
 
-    return {
+    // Detect if we're in Firefox DevTools (which often provides square cameras)
+    const isFirefoxDevTools =
+      navigator.userAgent.includes("Firefox") &&
+      (screen.width === screen.height ||
+        Math.abs(screen.width - screen.height) < 50);
+
+    console.log("Camera constraints info:", {
+      targetAspectRatio,
+      isPortrait,
+      screenDimensions: `${screen.width}×${screen.height}`,
+      isFirefoxDevTools,
+    });
+
+    const constraints = {
       video: {
         deviceId: deviceId ? { exact: deviceId } : undefined,
         facingMode: deviceId
@@ -87,13 +101,18 @@ class CameraManager {
         width: { ideal: 4096 },
         height: { ideal: 4096 },
 
-        // Match device screen aspect ratio
-        aspectRatio: { ideal: targetAspectRatio },
+        // Match device screen aspect ratio - use exact for DevTools to force compliance
+        aspectRatio: isFirefoxDevTools
+          ? { exact: targetAspectRatio }
+          : { ideal: targetAspectRatio },
 
         // Quality settings
         frameRate: { ideal: 30 },
       },
     };
+
+    console.log("Applied camera constraints:", constraints);
+    return constraints;
   }
 
   async init() {
@@ -327,6 +346,27 @@ class CameraManager {
             height: this.video.videoHeight,
           };
         }
+
+        // Log actual vs requested resolution for debugging
+        const actualAspect = this.video.videoWidth / this.video.videoHeight;
+        const targetAspect = this.getTargetAspectRatio();
+        const aspectDiff = Math.abs(actualAspect - targetAspect);
+
+        console.log("Camera resolution result:", {
+          requested: `aspect ratio ${targetAspect.toFixed(2)}`,
+          actual: `${this.video.videoWidth}×${this.video.videoHeight}`,
+          actualAspect: actualAspect.toFixed(2),
+          aspectDifference: aspectDiff.toFixed(2),
+          constraintsRespected: aspectDiff < 0.1,
+        });
+
+        // Warn if we're getting very different aspect ratio than expected
+        if (aspectDiff > 0.3) {
+          console.warn(
+            "Camera constraints not fully respected - actual aspect ratio differs significantly from target",
+          );
+        }
+
         // Always update resolution overlay with actual dimensions
         this.updateResolutionOverlay();
 
