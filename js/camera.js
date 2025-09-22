@@ -57,13 +57,43 @@ class CameraManager {
   }
 
   isPortraitMode() {
-    // Check if device is in portrait mode
-    return window.innerHeight > window.innerWidth;
+    // Check if device is in portrait mode using screen dimensions
+    // This is more reliable than window dimensions for PWAs
+    return screen.height > screen.width;
   }
 
   getTargetAspectRatio() {
-    // Return 16:10 for landscape, 10:16 for portrait
-    return this.isPortraitMode() ? 0.625 : 1.6;
+    // Use actual screen aspect ratio for more natural behavior
+    const isPortrait = this.isPortraitMode();
+    return isPortrait
+      ? screen.height / screen.width
+      : screen.width / screen.height;
+  }
+
+  getOptimalConstraints(deviceId = null) {
+    // Get constraints that match native camera app behavior
+    const targetAspectRatio = this.getTargetAspectRatio();
+
+    return {
+      video: {
+        deviceId: deviceId ? { exact: deviceId } : undefined,
+        facingMode: deviceId
+          ? undefined
+          : this.currentCameraType === "front"
+            ? "user"
+            : "environment",
+
+        // Request maximum resolution possible
+        width: { ideal: 4096 },
+        height: { ideal: 4096 },
+
+        // Match device screen aspect ratio
+        aspectRatio: { ideal: targetAspectRatio },
+
+        // Quality settings
+        frameRate: { ideal: 30 },
+      },
+    };
   }
 
   async init() {
@@ -250,35 +280,26 @@ class CameraManager {
         this.stream.getTracks().forEach((track) => track.stop());
       }
 
-      // Use provided resolution or let camera choose its best
-      const targetResolution = resolution;
-
-      const constraints = {
-        video: {
-          deviceId: deviceId ? { exact: deviceId } : undefined,
-
-          ...(targetResolution
-            ? {
-                width: { ideal: targetResolution.width },
-                height: { ideal: targetResolution.height },
-              }
-            : this.isPortraitMode()
-              ? {
-                  height: { ideal: 1920 }, // High resolution for portrait
-                  aspectRatio: { ideal: 0.625 }, // 10:16
-                }
-              : {
-                  width: { ideal: 1920 }, // High resolution for landscape
-                  aspectRatio: { ideal: 1.6 }, // 16:10
-                }),
-          facingMode: deviceId ? undefined : "environment",
-        },
-      };
+      // Use provided resolution or get optimal constraints
+      const constraints = resolution
+        ? {
+            video: {
+              deviceId: deviceId ? { exact: deviceId } : undefined,
+              width: { ideal: resolution.width },
+              height: { ideal: resolution.height },
+              facingMode: deviceId
+                ? undefined
+                : this.currentCameraType === "front"
+                  ? "user"
+                  : "environment",
+            },
+          }
+        : this.getOptimalConstraints(deviceId);
 
       this.stream = await navigator.mediaDevices.getUserMedia(constraints);
       this.video.srcObject = this.stream;
       this.currentDeviceId = deviceId;
-      this.currentResolution = targetResolution;
+      this.currentResolution = resolution;
 
       // Wait for video metadata to load, then set up proper sizing
       this.video.addEventListener("loadedmetadata", () => {
@@ -531,13 +552,13 @@ class CameraManager {
   }
 
   getDeviceOrientation() {
-    // Detect device orientation
+    // Detect device orientation using screen API
     if (screen && screen.orientation) {
       return screen.orientation.angle;
     }
 
-    // Fallback: detect based on window dimensions
-    const isLandscape = window.innerWidth > window.innerHeight;
+    // Fallback: detect based on screen dimensions (more reliable than window)
+    const isLandscape = screen.width > screen.height;
     return isLandscape ? 90 : 0;
   }
 

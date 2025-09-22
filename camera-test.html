@@ -715,14 +715,16 @@
         }
 
         updateOrientationInfo() {
-          const width = window.innerWidth;
-          const height = window.innerHeight;
-          const isLandscape = width > height;
+          const screenWidth = screen.width;
+          const screenHeight = screen.height;
+          const windowWidth = window.innerWidth;
+          const windowHeight = window.innerHeight;
+          const isLandscape = screenWidth > screenHeight;
 
-          // Basic orientation detection
+          // Basic orientation detection using screen dimensions
           const orientationState = isLandscape
-            ? `Landscape (${width} > ${height})`
-            : `Portrait (${height} > ${width})`;
+            ? `Landscape (screen: ${screenWidth} > ${screenHeight}, window: ${windowWidth} × ${windowHeight})`
+            : `Portrait (screen: ${screenHeight} > ${screenWidth}, window: ${windowWidth} × ${windowHeight})`;
           document.getElementById("orientationState").textContent =
             orientationState;
 
