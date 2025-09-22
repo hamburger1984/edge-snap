@@ -6,6 +6,7 @@
 - **Show a short summary** of what was changed and why
 - **Test the change** to ensure it works as expected
 - **Create a commit** after each successful change with descriptive message
+- **Automatically push commits** to remote repository (user preference)
 
 ### Development Process
 1. **Plan before coding** - Use TodoWrite to track complex tasks
@@ -24,6 +25,12 @@ type(scope): brief description
 ```
 
 Types: fix, feat, refactor, style, docs, test
+
+## User Preferences
+
+### Workflow Automation
+- **Auto-commit and push**: After completing any development task, automatically commit changes with descriptive messages and push to remote repository without asking
+- **Commit message format**: Follow conventional commit format (type(scope): description)
 
 ## Technical Guidelines
 
