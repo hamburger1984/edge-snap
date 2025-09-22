@@ -281,7 +281,10 @@ class CameraManager {
     const height = this.currentResolution?.height || this.video.videoHeight;
 
     if (width && height) {
-      overlay.textContent = `${width}×${height}`;
+      // Add orientation emoji based on current orientation
+      const isPortrait = this.isPortraitMode();
+      const orientationEmoji = isPortrait ? "👤" : "🌄";
+      overlay.textContent = `${orientationEmoji} ${width}×${height}`;
     } else {
       overlay.textContent = "";
     }
