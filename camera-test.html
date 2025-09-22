@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Camera Test - EdgeSnap</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #1a1a1a;
+        color: #ffffff;
+        padding: 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #333;
+      }
+
+      .header h1 {
+        color: #2196F3;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        color: #ccc;
+        font-size: 14px;
+      }
+
+      .test-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+
+      .controls-panel {
+        background: #2a2a2a;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #444;
+      }
+
+      .preview-panel {
+        background: #2a2a2a;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #444;
+      }
+
+      .section {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #444;
+      }
+
+      .section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      .section h3 {
+        color: #2196F3;
+        margin-bottom: 15px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #ccc;
+        font-size: 14px;
+      }
+
+      select, input[type="number"], input[type="text"] {
+        width: 100%;
+        padding: 8px 12px;
+        background: #1a1a1a;
+        border: 1px solid #555;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+      }
+
+      select:focus, input:focus {
+        outline: none;
+        border-color: #2196F3;
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        width: auto;
+      }
+
+      .constraint-row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .constraint-row input[type="number"] {
+        width: 80px;
+      }
+
+      button {
+        background: #2196F3;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+
+      button:hover {
+        background: #1976D2;
+      }
+
+      button:disabled {
+        background: #555;
+        cursor: not-allowed;
+      }
+
+      button.stop-btn {
+        background: #f44336;
+      }
+
+      button.stop-btn:hover {
+        background: #d32f2f;
+      }
+
+      .video-container {
+        position: relative;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+
+      #testVideo {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .video-overlay {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-family: monospace;
+      }
+
+      .status-info {
+        background: #333;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+      }
+
+      .status-info h4 {
+        color: #2196F3;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+
+      .status-info p {
+        margin-bottom: 5px;
+        font-size: 13px;
+        color: #ccc;
+      }
+
+      .status-info code {
+        background: #1a1a1a;
+        padding: 2px 6px;
+        border-radius: 3px;
+        color: #ffa726;
+        font-size: 12px;
+      }
+
+      .transform-controls {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .transform-controls label {
+        margin: 0;
+        min-width: 80px;
+      }
+
+      .error-message {
+        background: #f44336;
+        color: white;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
+        .test-container {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        body {
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Camera Test Tool</h1>
+      <p>Debug mobile camera issues with detailed constraint and transformation testing</p>
+    </div>
+
+    <div class="test-container">
+      <!-- Controls Panel -->
+      <div class="controls-panel">
+        <!-- Camera Selection -->
+        <div class="section">
+          <h3>📷 Camera Selection</h3>
+          <div class="form-group">
+            <label for="cameraSelect">Available Cameras:</label>
+            <select id="cameraSelect">
+              <option value="">Loading cameras...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Constraint Configuration -->
+        <div class="section">
+          <h3>⚙️ Constraint Configuration</h3>
+
+          <div class="constraint-row">
+            <input type="checkbox" id="enableWidth" />
+            <label for="enableWidth">Width:</label>
+            <input type="number" id="widthValue" value="1920" disabled />
+          </div>
+
+          <div class="constraint-row">
+            <input type="checkbox" id="enableHeight" />
+            <label for="enableHeight">Height:</label>
+            <input type="number" id="heightValue" value="1080" disabled />
+          </div>
+
+          <div class="constraint-row">
+            <input type="checkbox" id="enableRatio" />
+            <label for="enableRatio">Aspect Ratio:</label>
+            <input type="number" id="ratioValue" value="1.77" step="0.01" disabled />
+          </div>
+
+          <div class="form-group">
+            <label for="facingMode">Facing Mode:</label>
+            <select id="facingMode">
+              <option value="">Auto</option>
+              <option value="user">User (Front)</option>
+              <option value="environment">Environment (Back)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Camera Controls -->
+        <div class="section">
+          <h3>🎮 Camera Controls</h3>
+          <button id="startCamera">Start Camera Preview</button>
+          <button id="stopCamera" class="stop-btn" disabled>Stop Camera Preview</button>
+        </div>
+
+        <!-- Transform Controls -->
+        <div class="section">
+          <h3>🔄 Transform Controls</h3>
+
+          <div class="transform-controls">
+            <label for="scaleX">Scale X:</label>
+            <input type="range" id="scaleX" min="-2" max="2" step="0.1" value="1" />
+          </div>
+
+          <div class="transform-controls">
+            <label for="scaleY">Scale Y:</label>
+            <input type="range" id="scaleY" min="-2" max="2" step="0.1" value="1" />
+          </div>
+
+          <div class="transform-controls">
+            <label for="rotation">Rotation:</label>
+            <input type="range" id="rotation" min="-180" max="180" step="15" value="0" />
+          </div>
+
+          <button id="resetTransform">Reset Transform</button>
+        </div>
+      </div>
+
+      <!-- Preview Panel -->
+      <div class="preview-panel">
+        <!-- Video Preview -->
+        <div class="section">
+          <h3>📺 Camera Preview</h3>
+          <div class="video-container">
+            <video id="testVideo" autoplay playsinline muted></video>
+            <div class="video-overlay" id="videoOverlay">
+              No video stream
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Status -->
+        <div class="section">
+          <h3>📊 Current Status</h3>
+          <div id="errorContainer"></div>
+
+          <div class="status-info">
+            <h4>Camera Information</h4>
+            <p>Selected: <code id="selectedCamera">None</code></p>
+            <p>Resolution: <code id="actualResolution">N/A</code></p>
+            <p>Applied Constraints: <code id="appliedConstraints">None</code></p>
+          </div>
+
+          <div class="status-info">
+            <h4>Current Transform</h4>
+            <p>Transform CSS: <code id="currentTransform">none</code></p>
+            <p>Scale X: <code id="currentScaleX">1</code></p>
+            <p>Scale Y: <code id="currentScaleY">1</code></p>
+            <p>Rotation: <code id="currentRotation">0°</code></p>
+          </div>
+
+          <div class="status-info">
+            <h4>Device Orientation</h4>
+            <p>Current State: <code id="orientationState">Detecting...</code></p>
+            <p>Detection Logic: <code id="orientationLogic">window.innerWidth vs window.innerHeight</code></p>
+            <p>Screen Orientation: <code id="screenOrientation">N/A</code></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      class CameraTestTool {
+        constructor() {
+          this.stream = null;
+          this.video = document.getElementById('testVideo');
+          this.devices = [];
+          this.currentTransform = {
+            scaleX: 1,
+            scaleY: 1,
+            rotation: 0
+          };
+
+          this.init();
+        }
+
+        async init() {
+          this.setupEventListeners();
+          await this.loadCameraDevices();
+          this.updateOrientationInfo();
+
+          // Update orientation info on resize/orientation change
+          window.addEventListener('resize', () => this.updateOrientationInfo());
+          window.addEventListener('orientationchange', () => {
+            setTimeout(() => this.updateOrientationInfo(), 100);
+          });
+        }
+
+        setupEventListeners() {
+          // Constraint checkboxes
+          document.getElementById('enableWidth').addEventListener('change', (e) => {
+            document.getElementById('widthValue').disabled = !e.target.checked;
+          });
+
+          document.getElementById('enableHeight').addEventListener('change', (e) => {
+            document.getElementById('heightValue').disabled = !e.target.checked;
+          });
+
+          document.getElementById('enableRatio').addEventListener('change', (e) => {
+            document.getElementById('ratioValue').disabled = !e.target.checked;
+          });
+
+          // Camera controls
+          document.getElementById('startCamera').addEventListener('click', () => this.startCamera());
+          document.getElementById('stopCamera').addEventListener('click', () => this.stopCamera());
+
+          // Transform controls
+          document.getElementById('scaleX').addEventListener('input', (e) => {
+            this.currentTransform.scaleX = parseFloat(e.target.value);
+            this.updateTransform();
+          });
+
+          document.getElementById('scaleY').addEventListener('input', (e) => {
+            this.currentTransform.scaleY = parseFloat(e.target.value);
+            this.updateTransform();
+          });
+
+          document.getElementById('rotation').addEventListener('input', (e) => {
+            this.currentTransform.rotation = parseInt(e.target.value);
+            this.updateTransform();
+          });
+
+          document.getElementById('resetTransform').addEventListener('click', () => this.resetTransform());
+
+          // Video loaded metadata
+          this.video.addEventListener('loadedmetadata', () => {
+            this.updateVideoInfo();
+          });
+        }
+
+        async loadCameraDevices() {
+          try {
+            // Request permission first
+            await navigator.mediaDevices.getUserMedia({ video: true });
+
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            this.devices = devices.filter(device => device.kind === 'videoinput');
+
+            const select = document.getElementById('cameraSelect');
+            select.innerHTML = '';
+
+            if (this.devices.length === 0) {
+              select.innerHTML = '<option value="">No cameras found</option>';
+              return;
+            }
+
+            this.devices.forEach((device, index) => {
+              const option = document.createElement('option');
+              option.value = device.deviceId;
+              option.textContent = device.label || `Camera ${index + 1}`;
+              select.appendChild(option);
+            });
+
+          } catch (error) {
+            console.error('Error loading cameras:', error);
+            this.showError('Failed to load cameras: ' + error.message);
+          }
+        }
+
+        async startCamera() {
+          try {
+            this.clearError();
+
+            const selectedDeviceId = document.getElementById('cameraSelect').value;
+            if (!selectedDeviceId) {
+              this.showError('Please select a camera first');
+              return;
+            }
+
+            // Build constraints
+            const constraints = { video: {} };
+
+            // Device ID
+            constraints.video.deviceId = { exact: selectedDeviceId };
+
+            // Width constraint
+            if (document.getElementById('enableWidth').checked) {
+              const width = parseInt(document.getElementById('widthValue').value);
+              if (width > 0) {
+                constraints.video.width = { ideal: width };
+              }
+            }
+
+            // Height constraint
+            if (document.getElementById('enableHeight').checked) {
+              const height = parseInt(document.getElementById('heightValue').value);
+              if (height > 0) {
+                constraints.video.height = { ideal: height };
+              }
+            }
+
+            // Aspect ratio constraint
+            if (document.getElementById('enableRatio').checked) {
+              const ratio = parseFloat(document.getElementById('ratioValue').value);
+              if (ratio > 0) {
+                constraints.video.aspectRatio = { ideal: ratio };
+              }
+            }
+
+            // Facing mode
+            const facingMode = document.getElementById('facingMode').value;
+            if (facingMode) {
+              constraints.video.facingMode = facingMode;
+            }
+
+            // Stop existing stream
+            if (this.stream) {
+              this.stream.getTracks().forEach(track => track.stop());
+            }
+
+            // Start new stream
+            this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+            this.video.srcObject = this.stream;
+
+            // Update UI
+            document.getElementById('startCamera').disabled = true;
+            document.getElementById('stopCamera').disabled = false;
+
+            // Update status
+            this.updateCameraStatus(selectedDeviceId, constraints);
+
+          } catch (error) {
+            console.error('Error starting camera:', error);
+            this.showError('Failed to start camera: ' + error.message);
+          }
+        }
+
+        stopCamera() {
+          if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+          }
+
+          this.video.srcObject = null;
+
+          // Update UI
+          document.getElementById('startCamera').disabled = false;
+          document.getElementById('stopCamera').disabled = true;
+
+          // Clear status
+          document.getElementById('videoOverlay').textContent = 'No video stream';
+          document.getElementById('actualResolution').textContent = 'N/A';
+          document.getElementById('selectedCamera').textContent = 'None';
+          document.getElementById('appliedConstraints').textContent = 'None';
+        }
+
+        updateTransform() {
+          const { scaleX, scaleY, rotation } = this.currentTransform;
+          const transform = `scaleX(${scaleX}) scaleY(${scaleY}) rotate(${rotation}deg)`;
+
+          this.video.style.transform = transform;
+
+          // Update status display
+          document.getElementById('currentTransform').textContent = transform;
+          document.getElementById('currentScaleX').textContent = scaleX;
+          document.getElementById('currentScaleY').textContent = scaleY;
+          document.getElementById('currentRotation').textContent = rotation + '°';
+        }
+
+        resetTransform() {
+          this.currentTransform = { scaleX: 1, scaleY: 1, rotation: 0 };
+
+          // Reset sliders
+          document.getElementById('scaleX').value = 1;
+          document.getElementById('scaleY').value = 1;
+          document.getElementById('rotation').value = 0;
+
+          this.updateTransform();
+        }
+
+        updateVideoInfo() {
+          if (!this.video.videoWidth || !this.video.videoHeight) return;
+
+          const resolution = `${this.video.videoWidth}×${this.video.videoHeight}`;
+          document.getElementById('actualResolution').textContent = resolution;
+          document.getElementById('videoOverlay').textContent = resolution;
+        }
+
+        updateCameraStatus(deviceId, constraints) {
+          // Find selected camera name
+          const selectedDevice = this.devices.find(d => d.deviceId === deviceId);
+          const cameraName = selectedDevice ? selectedDevice.label : 'Unknown';
+          document.getElementById('selectedCamera').textContent = cameraName;
+
+          // Format constraints
+          const constraintsParts = [];
+          if (constraints.video.width) constraintsParts.push(`width: ${JSON.stringify(constraints.video.width)}`);
+          if (constraints.video.height) constraintsParts.push(`height: ${JSON.stringify(constraints.video.height)}`);
+          if (constraints.video.aspectRatio) constraintsParts.push(`aspectRatio: ${JSON.stringify(constraints.video.aspectRatio)}`);
+          if (constraints.video.facingMode) constraintsParts.push(`facingMode: ${constraints.video.facingMode}`);
+
+          const constraintsText = constraintsParts.length > 0 ? constraintsParts.join(', ') : 'Default';
+          document.getElementById('appliedConstraints').textContent = constraintsText;
+        }
+
+        updateOrientationInfo() {
+          const width = window.innerWidth;
+          const height = window.innerHeight;
+          const isLandscape = width > height;
+
+          // Basic orientation detection
+          const orientationState = isLandscape
+            ? `Landscape (${width} > ${height})`
+            : `Portrait (${height} > ${width})`;
+          document.getElementById('orientationState').textContent = orientationState;
+
+          // Screen orientation API if available
+          if (screen && screen.orientation) {
+            const orientation = screen.orientation;
+            document.getElementById('screenOrientation').textContent =
+              `${orientation.type} (${orientation.angle}°)`;
+          } else {
+            document.getElementById('screenOrientation').textContent = 'Not available';
+          }
+        }
+
+        showError(message) {
+          const container = document.getElementById('errorContainer');
+          container.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        clearError() {
+          document.getElementById('errorContainer').innerHTML = '';
+        }
+      }
+
+      // Initialize the camera test tool
+      new CameraTestTool();
+    </script>
+  </body>
+</html>
