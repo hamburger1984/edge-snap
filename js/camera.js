@@ -164,13 +164,15 @@ class CameraManager {
     this.bestBackCamera = this.selectBestQualityCamera(backCameras);
     this.bestFrontCamera = this.selectBestQualityCamera(frontCameras);
 
-    // If we have only one camera and no clear front/back distinction, treat it as back camera
-    if (
-      this.devices.length === 1 &&
-      !this.bestBackCamera &&
-      !this.bestFrontCamera
-    ) {
-      this.bestBackCamera = this.devices[0];
+    // If we have only one camera, make it available as both front and back
+    if (this.devices.length === 1) {
+      const singleCamera = this.devices[0];
+      if (!this.bestBackCamera) {
+        this.bestBackCamera = singleCamera;
+      }
+      if (!this.bestFrontCamera) {
+        this.bestFrontCamera = singleCamera;
+      }
     }
 
     console.log("Camera selection:", {
@@ -268,9 +270,17 @@ class CameraManager {
 
   updateResolutionOverlay() {
     const overlay = document.getElementById("resolutionOverlay");
-    if (!overlay || !this.currentResolution) return;
+    if (!overlay) return;
 
-    overlay.textContent = `${this.currentResolution.width}×${this.currentResolution.height}`;
+    // Use current resolution or actual video dimensions
+    const width = this.currentResolution?.width || this.video.videoWidth;
+    const height = this.currentResolution?.height || this.video.videoHeight;
+
+    if (width && height) {
+      overlay.textContent = `${width}×${height}`;
+    } else {
+      overlay.textContent = "";
+    }
   }
 
   async startCamera(deviceId, resolution = null) {
@@ -304,14 +314,14 @@ class CameraManager {
       // Wait for video metadata to load, then set up proper sizing
       this.video.addEventListener("loadedmetadata", () => {
         // Update current resolution from actual video dimensions if not specified
-        if (!targetResolution) {
+        if (!resolution) {
           this.currentResolution = {
             width: this.video.videoWidth,
             height: this.video.videoHeight,
           };
-          // Update resolution overlay with actual dimensions
-          this.updateResolutionOverlay();
         }
+        // Always update resolution overlay with actual dimensions
+        this.updateResolutionOverlay();
 
         // Small delay to ensure video dimensions are stable
         setTimeout(() => {
